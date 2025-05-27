@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasknavigation/screens/tasks_screen.dart';
-import 'package:tasknavigation/screens/settings_screen.dart';  // importar aqui
+import 'package:tasknavigation/screens/settings_screen.dart';
+import 'package:tasknavigation/screens/documents_screen.dart';  // Importar aqui
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -24,8 +25,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const TasksScreen(),
     Center(child: Text('Página de Projetos', style: TextStyle(fontSize: 24))),
     Center(child: Text('Página de Relatórios', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Página de Documentos', style: TextStyle(fontSize: 24))),
-    const SettingsScreen(),  // Aqui é a SettingsScreen de verdade
+    DocumentsScreen(),  // Aqui está a sua tela real
+    const SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -67,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Icon(Icons.account_circle, color: Colors.deepPurple[300], size: 28),
                 const SizedBox(width: 8),
                 Text(
-                  'Usuário: João Silva',
+                  '',
                   style: TextStyle(
                     color: Colors.deepPurple[300],
                     fontWeight: FontWeight.w600,

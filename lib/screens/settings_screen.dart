@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             backgroundImage: _profileImage != null
                 ? FileImage(_profileImage!) as ImageProvider
                 : const AssetImage('assets/default_profile.png'),
-            backgroundColor: Colors.grey[200],
+            backgroundColor: const Color.fromARGB(255, 49, 48, 48),
           ),
           const SizedBox(height: 8),
           ElevatedButton.icon(

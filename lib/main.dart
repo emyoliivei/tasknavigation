@@ -43,7 +43,7 @@ class TaskNavigationApp extends StatelessWidget {
             '/tarefas': (context) => const TasksScreen(),
             '/projetos': (context) => const ProjectsScreen(),
             '/relatorios': (context) => const ReportsScreen(),
-            '/documentos': (context) => const DocumentsScreen(),
+            '/documentos': (context) => DocumentsScreen(),
             '/configuracao': (context) => const SettingsScreen(),
           },
         );
