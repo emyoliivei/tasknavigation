@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasknavigation/screens/tasks_screen.dart';
+import 'package:tasknavigation/screens/settings_screen.dart';  // importar aqui
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,13 +21,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   static final List<Widget> _pages = [
-  const TasksScreen(),
-  Center(child: Text('Página de Projetos', style: TextStyle(fontSize: 24))),
-  Center(child: Text('Página de Relatórios', style: TextStyle(fontSize: 24))),
-  Center(child: Text('Página de Documentos', style: TextStyle(fontSize: 24))),
-  Center(child: Text('Página de Configuração', style: TextStyle(fontSize: 24))),
-];
-
+    const TasksScreen(),
+    Center(child: Text('Página de Projetos', style: TextStyle(fontSize: 24))),
+    Center(child: Text('Página de Relatórios', style: TextStyle(fontSize: 24))),
+    Center(child: Text('Página de Documentos', style: TextStyle(fontSize: 24))),
+    const SettingsScreen(),  // Aqui é a SettingsScreen de verdade
+  ];
 
   void _onItemTapped(int index) {
     setState(() {

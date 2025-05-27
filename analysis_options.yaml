@@ -23,11 +23,19 @@ linter:
   rules:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+dependencies:
   flutter:
-  uses-material-design: true
+
+
+    sdk: flutter
+  image_picker: ^0.8.7+4
+
+
+flutter:
 
   assets:
     - assets/default_profile.png
+
 
 
 
