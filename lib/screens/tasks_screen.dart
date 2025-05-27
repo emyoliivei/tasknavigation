@@ -202,12 +202,17 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  void _goBack() {
+    Navigator.pushReplacementNamed(context, '/');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''),
+        automaticallyImplyLeading: false, // Desativa seta automática
         backgroundColor: Colors.deepPurple,
+       
       ),
       body: Column(
         children: [
@@ -255,8 +260,7 @@ class _TasksScreenState extends State<TasksScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon:
-                                    const Icon(Icons.edit, color: Colors.deepPurple),
+                                icon: const Icon(Icons.edit, color: Colors.deepPurple),
                                 onPressed: () => _editTaskDialog(index: index),
                               ),
                               IconButton(

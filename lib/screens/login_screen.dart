@@ -30,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.deepPurple[100], // fundo roxo clarinho
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
+        automaticallyImplyLeading: false, 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: _goBack,
