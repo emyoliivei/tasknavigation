@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Importa para acessar o themeNotifier
-import '../main.dart';  
+import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -32,77 +33,137 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    // Inicializa o estado do switch conforme o tema atual
     _isDarkTheme = TaskNavigationApp.themeNotifier.value == ThemeMode.dark;
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 60,
-            backgroundImage: _profileImage != null
-                ? FileImage(_profileImage!) as ImageProvider
-                : const AssetImage('assets/default_profile.png'),
-            backgroundColor: const Color.fromARGB(255, 49, 48, 48),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Fundo preto no escuro, branco no claro
+    final backgroundColor = isDark ? Colors.black : Colors.white;
+
+    // Borda roxa mais viva no modo escuro, roxa padrão no claro
+    final borderColor = isDark ? Colors.deepPurpleAccent : Colors.deepPurple;
+
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final secondaryTextColor = isDark ? Colors.grey[400] : Colors.grey[800];
+    final switchActiveColor = Colors.deepPurpleAccent;
+
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.deepPurple,
+        title: Text(
+          'Configurações',
+          style: GoogleFonts.montserrat(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.photo_camera),
-            label: const Text('Trocar Foto de Perfil'),
-            onPressed: _pickImage,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.deepPurpleAccent.withOpacity(0.6)
+                        : Colors.deepPurple.withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 64,
+                backgroundColor:
+                    isDark ? Colors.deepPurple.shade700 : Colors.deepPurple.shade100,
+                backgroundImage: _profileImage != null
+                    ? FileImage(_profileImage!) as ImageProvider
+                    : const AssetImage('assets/default_profile.png'),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          TextFormField(
-            initialValue: _userName,
-            decoration: InputDecoration(
-              labelText: 'Nome de Usuário',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.photo_camera),
+              label: const Text('Trocar Foto de Perfil'),
+              onPressed: _pickImage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                elevation: 6,
+                shadowColor: Colors.deepPurpleAccent,
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              prefixIcon: const Icon(Icons.person),
             ),
-            onChanged: (value) {
-              setState(() {
-                _userName = value;
-              });
-            },
-          ),
-          const SizedBox(height: 24),
-          SwitchListTile(
-            title: const Text('Tema Escuro'),
-            value: _isDarkTheme,
-            onChanged: (bool value) {
-              setState(() {
-                _isDarkTheme = value;
-                TaskNavigationApp.themeNotifier.value =
-                    value ? ThemeMode.dark : ThemeMode.light;
-              });
-            },
-            secondary: const Icon(Icons.dark_mode),
-            activeColor: Colors.deepPurple,
-          ),
-          SwitchListTile(
-            title: const Text('Notificações'),
-            value: _notificationsEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                _notificationsEnabled = value;
-              });
-            },
-            secondary: const Icon(Icons.notifications),
-            activeColor: Colors.deepPurple,
-          ),
-        ],
+            const SizedBox(height: 36),
+            TextFormField(
+              initialValue: _userName,
+              style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                labelText: 'Nome de Usuário',
+                labelStyle: TextStyle(color: secondaryTextColor),
+                prefixIcon: Icon(Icons.person, color: borderColor),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: borderColor, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: switchActiveColor, width: 3),
+                ),
+                fillColor: isDark ? Colors.deepPurple.shade900 : Colors.deepPurple.shade50,
+                filled: true,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _userName = value;
+                });
+              },
+            ),
+            const SizedBox(height: 36),
+            SwitchListTile(
+              title: Text(
+                'Tema Escuro',
+                style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+              ),
+              value: _isDarkTheme,
+              onChanged: (bool value) {
+                setState(() {
+                  _isDarkTheme = value;
+                  TaskNavigationApp.themeNotifier.value =
+                      value ? ThemeMode.dark : ThemeMode.light;
+                });
+              },
+              secondary: Icon(Icons.dark_mode, color: borderColor),
+              activeColor: switchActiveColor,
+            ),
+            SwitchListTile(
+              title: Text(
+                'Notificações',
+                style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+              ),
+              value: _notificationsEnabled,
+              onChanged: (bool value) {
+                setState(() {
+                  _notificationsEnabled = value;
+                });
+              },
+              secondary: Icon(Icons.notifications, color: borderColor),
+              activeColor: switchActiveColor,
+            ),
+          ],
+        ),
       ),
     );
   }

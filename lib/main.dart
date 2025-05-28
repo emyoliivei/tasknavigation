@@ -5,7 +5,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/tasks_screen.dart';
 import 'screens/projects_screen.dart';
 import 'screens/reports_screen.dart';
-import 'screens/documents_screen.dart';
+import 'screens/collaboration_screen.dart';
 import 'screens/settings_screen.dart';
 
 void main() {
@@ -15,7 +15,6 @@ void main() {
 class TaskNavigationApp extends StatelessWidget {
   const TaskNavigationApp({super.key});
 
-  // Crie um ValueNotifier para guardar o modo do tema
   static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
   @override
@@ -27,23 +26,27 @@ class TaskNavigationApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Task Navigation',
           theme: ThemeData(
-            primarySwatch: Colors.deepPurple,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
             brightness: Brightness.light,
           ),
           darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            primarySwatch: Colors.deepPurple,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
           ),
-          themeMode: currentMode, // usa o valor atual do tema
+          themeMode: currentMode,
           initialRoute: '/',
           routes: {
             '/': (context) => const HomeScreen(),
-            '/login': (context) => LoginScreen(),
-            '/dashboard': (context) => DashboardScreen(),
+            '/login': (context) => const LoginScreen(),
+            '/dashboard': (context) => const DashboardScreen(),
             '/tarefas': (context) => const TasksScreen(),
-            '/projetos': (context) => const ProjectsScreen(),
+            '/projetos': (context) => ProjectsScreen(),
             '/relatorios': (context) => const ReportsScreen(),
-            '/documentos': (context) => DocumentsScreen(),
+            '/colaboracao': (context) => CollaborationScreen(),
             '/configuracao': (context) => const SettingsScreen(),
           },
         );

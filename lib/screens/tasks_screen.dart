@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -176,7 +177,7 @@ class _TasksScreenState extends State<TasksScreen> {
                         'assignedTo': _editAssignedTo,
                       };
                     }
-                    _filterTasks(_searchQuery); // Atualiza filtro após salvar
+                    _filterTasks(_searchQuery);
                   });
                   Navigator.pop(context);
                 }
@@ -192,9 +193,9 @@ class _TasksScreenState extends State<TasksScreen> {
   Widget _priorityColor(String priority) {
     switch (priority) {
       case 'Alta':
-        return const Icon(Icons.flag, color: Colors.red);
+        return const Icon(Icons.flag, color: Colors.redAccent);
       case 'Média':
-        return const Icon(Icons.flag, color: Colors.orange);
+        return const Icon(Icons.flag, color: Colors.orangeAccent);
       case 'Baixa':
         return const Icon(Icons.flag, color: Colors.green);
       default:
@@ -202,27 +203,36 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  void _goBack() {
-    Navigator.pushReplacementNamed(context, '/');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Desativa seta automática
-        backgroundColor: Colors.deepPurple,
-       
+        backgroundColor: const Color(0xFF673AB7),
+        title: Text(
+          'Tarefas',
+          style: GoogleFonts.montserrat(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,  // sem seta de voltar
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
             child: TextField(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Pesquisar tarefas',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
               onChanged: _filterTasks,
             ),
@@ -231,36 +241,41 @@ class _TasksScreenState extends State<TasksScreen> {
             child: _filteredTasks.isEmpty
                 ? const Center(child: Text('Nenhuma tarefa encontrada'))
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _filteredTasks.length,
                     itemBuilder: (context, index) {
                       final task = _filteredTasks[index];
                       return Card(
+                        elevation: 3,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        elevation: 2,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         child: ListTile(
+                          contentPadding: const EdgeInsets.all(12),
                           title: Text(
                             task['title'],
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18),
+                            style: GoogleFonts.montserrat(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                  'Prazo: ${task['deadline'].toLocal().toString().split(' ')[0]}'),
-                              Text('Atribuído a: ${task['assignedTo']}'),
-                            ],
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Prazo: ${task['deadline'].toLocal().toString().split(' ')[0]}'),
+                                Text('Atribuído a: ${task['assignedTo']}'),
+                              ],
+                            ),
                           ),
                           leading: _priorityColor(task['priority']),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.deepPurple),
+                                icon: const Icon(Icons.edit, color: Color(0xFF673AB7)),
                                 onPressed: () => _editTaskDialog(index: index),
                               ),
                               IconButton(
@@ -278,9 +293,10 @@ class _TasksScreenState extends State<TasksScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _editTaskDialog(),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color(0xFF673AB7),
         child: const Icon(Icons.add),
       ),
     );
   }
 }
+
