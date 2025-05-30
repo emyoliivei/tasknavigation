@@ -205,9 +205,11 @@ class _TasksScreenState extends State<TasksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF673AB7),
+        backgroundColor: const Color(0xFF8E24AA),
         title: Text(
           'Tarefas',
           style: GoogleFonts.montserrat(
@@ -217,19 +219,29 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false,  // sem seta de voltar
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
             child: TextField(
+              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
               decoration: InputDecoration(
                 labelText: 'Pesquisar tarefas',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.grey[100],
+                labelStyle: TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
+                prefixIcon: Icon(Icons.search, color: isDark ? Colors.white : Colors.black),
+                filled: isDark,
+                fillColor: isDark ? Colors.white10 : Colors.grey[100],
                 border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
@@ -275,28 +287,28 @@ class _TasksScreenState extends State<TasksScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit, color: Color(0xFF673AB7)),
+                                icon: const Icon(Icons.edit, color: Colors.deepPurple),
                                 onPressed: () => _editTaskDialog(index: index),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteTask(index),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _editTaskDialog(),
-        backgroundColor: const Color(0xFF673AB7),
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+                                icon
+: const Icon(Icons.delete, color: Colors.redAccent),
+onPressed: () => _deleteTask(index),
+),
+],
+),
+),
+);
+},
+),
+),
+],
+),
+floatingActionButton: FloatingActionButton(
+onPressed: () => _editTaskDialog(),
+backgroundColor: const Color(0xFF673AB7),
+child: const Icon(Icons.add),
+),
+);
 }
-
+}

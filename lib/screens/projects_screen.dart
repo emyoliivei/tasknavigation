@@ -62,7 +62,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.deepPurple),
+                      borderSide: BorderSide(color:const Color(0xFF8E24AA)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -81,7 +81,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.deepPurple),
+                      borderSide: BorderSide(color:const Color(0xFF8E24AA)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -109,9 +109,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                               data: Theme.of(context).copyWith(
                                 colorScheme: isDark
                                     ? const ColorScheme.dark(
-                                        primary: Colors.deepPurple,
+                                        primary: const Color(0xFF8E24AA),
                                         onPrimary: Colors.white,
-                                        surface: Colors.deepPurpleAccent,
+                                        surface: const Color(0xFF8E24AA),
                                         onSurface: Colors.white,
                                       )
                                     : const ColorScheme.light(),
@@ -126,7 +126,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       },
                       child: Text(
                         'Selecionar Data',
-                        style: TextStyle(color: Colors.deepPurple),
+                        style: TextStyle(color: const Color(0xFF8E24AA)),
                       ),
                     ),
                   ],
@@ -141,7 +141,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   style: TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8E24AA)),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   setState(() {
@@ -193,7 +193,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor:const Color(0xFF8E24AA),
         title: Text(
           'Projetos',
           style: GoogleFonts.montserrat(
@@ -211,13 +211,22 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               style: TextStyle(color: isDark ? Colors.white : Colors.black87),
               decoration: InputDecoration(
                 labelText: 'Buscar projeto',
-                labelStyle: TextStyle(color: isDark ? Colors.white : Colors.grey[700]),
+                labelStyle: TextStyle(color: isDark ? Colors.grey : const Color.fromARGB(255, 63, 60, 60)),
                 prefixIcon: Icon(Icons.search, color: isDark ? Colors.white : Colors.black),
                 filled: isDark,
                 fillColor: isDark ? Colors.white10 : null,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
               onChanged: (value) => setState(() => filter = value),
             ),
@@ -233,29 +242,29 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   ),
                   elevation: 4,
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  color: isDark ? Colors.grey[300] : Colors.grey[100], // cinza claro no escuro, branco no claro
+                  color: isDark ? Colors.grey[850] : Colors.grey[100],
                   child: ListTile(
                     title: Text(
                       project['title'] ?? '',
                       style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.black87 : Colors.black,
+                        color: isDark ? Colors.grey[300] : Colors.black,
                       ),
                     ),
                     subtitle: Text(
                       '${project['project']} - ${project['date']}',
                       style: TextStyle(
-                        color: isDark ? Colors.black54 : Colors.black87,
+                        color: isDark ? Colors.grey[400] : Colors.black87,
                       ),
                     ),
                     leading: Icon(
                       Icons.folder,
-                      color: isDark ? Colors.black87 : Colors.deepPurple,
+                      color: isDark ? Colors.grey[300] : Colors.deepPurple,
                     ),
                     trailing: PopupMenuButton<String>(
                       icon: Icon(
                         Icons.more_vert,
-                        color: isDark ? Colors.black87 : Colors.deepPurple,
+                        color: isDark ? Colors.grey[300] : Colors.deepPurple,
                       ),
                       onSelected: (value) {
                         if (value == 'edit') {
@@ -290,3 +299,4 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
   }
 }
+

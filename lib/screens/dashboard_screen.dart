@@ -3,6 +3,7 @@ import 'package:tasknavigation/screens/tasks_screen.dart';
 import 'package:tasknavigation/screens/settings_screen.dart';
 import 'package:tasknavigation/screens/collaboration_screen.dart';
 import 'package:tasknavigation/screens/projects_screen.dart';
+import 'package:tasknavigation/screens/reports_screen.dart'; // 
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -17,7 +18,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   static final List<Widget> _pages = [
     const TasksScreen(),
     ProjectsScreen(),
-    Center(child: Text('Página de Relatórios')),
+    ReportsScreen(), // <-- Tela real de relatórios
     CollaborationScreen(),
     SettingsScreen(),
   ];
@@ -31,7 +32,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

@@ -28,30 +28,21 @@ class CollaborationScreen extends StatelessWidget {
     },
   ];
 
-  Color _priorityColor(String priority) {
-    switch (priority) {
-      case 'Alta':
-        return Colors.redAccent;
-      case 'Média':
-        return Colors.orangeAccent;
-      case 'Baixa':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF673AB7),
+        backgroundColor: const Color(0xFF8E24AA), // Roxo mais visível
         title: Text(
           'Colaboração Institucional',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.bold,
             fontSize: 22,
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
@@ -68,6 +59,9 @@ class CollaborationScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             elevation: 4,
+            color: isDark
+                ? theme.colorScheme.surfaceVariant
+                : const Color(0xFF8E24AA), // Roxo mais claro e legível
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -78,7 +72,7 @@ class CollaborationScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF4A148C),
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -86,34 +80,37 @@ class CollaborationScreen extends StatelessWidget {
                     dept['description'] ?? '',
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
-                      color: Colors.black87,
+                      color: Colors.white70,
                     ),
                   ),
-                  const Divider(height: 24, thickness: 1),
+                  const Divider(height: 24, thickness: 1, color: Colors.white38),
                   Text(
                     'Chefe do Setor:',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF7B1FA2),
+                      color: Colors.white,
                     ),
                   ),
                   Text(
                     dept['chief'] ?? '',
-                    style: GoogleFonts.montserrat(fontSize: 16),
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      color: Colors.white70,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Email:',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF7B1FA2),
+                      color: Colors.white,
                     ),
                   ),
                   Text(
                     dept['email'] ?? '',
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
-                      color: Colors.blue.shade700,
+                      color: Colors.white,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -122,7 +119,7 @@ class CollaborationScreen extends StatelessWidget {
                     'Biografia:',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF7B1FA2),
+                      color: Colors.white,
                     ),
                   ),
                   Text(
@@ -130,7 +127,7 @@ class CollaborationScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 15,
                       fontStyle: FontStyle.italic,
-                      color: Colors.grey[800],
+                      color: Colors.white70,
                     ),
                   ),
                 ],

@@ -61,9 +61,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF673AB7),
+                  const Color(0xFF8E24AA),
                   Color(0xFF512DA8),
-                  Color(0xFF311B92),
+                  const Color(0xFF8E24AA),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         const SizedBox(height: 28),
 
                         Text(
-                          'Bem-vindo à Task Navigation',
+                          'Login',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.w700,

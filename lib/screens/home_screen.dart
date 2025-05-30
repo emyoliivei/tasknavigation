@@ -20,10 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF512DA8),
-              Color(0xFFB388FF),
-            ],
+            colors: [Color(0xFF6A1B9A), Color(0xFFBA68C8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -36,38 +33,45 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Spacer(),
-                  const Icon(
-                    Icons.dashboard_customize_rounded,
-                    size: 100,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(height: 20),
+                  
+                  //  logo
+                 Image.asset(
+  'assets/logo.png',
+  width: 100,
+  height: 100,
+  fit: BoxFit.cover,
+),
+
+                  const SizedBox(height: 24),
+
                   AnimatedTextKit(
                     animatedTexts: [
                       FadeAnimatedText(
                         'TASK NAVIGATION',
                         textStyle: GoogleFonts.montserrat(
-                          fontSize: 34,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w700,
                           color: Colors.white,
-                          letterSpacing: 2,
+                          letterSpacing: 1.5,
                         ),
                         duration: const Duration(milliseconds: 2000),
                       ),
                     ],
                     isRepeatingAnimation: false,
                   ),
+
                   const SizedBox(height: 40),
+
                   ElevatedButton(
                     onPressed: () => _goToLogin(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: Colors.deepPurple,
-                      elevation: 10,
-                      shadowColor: Colors.deepPurpleAccent,
+                      foregroundColor: const Color(0xFF6A1B9A),
+                      elevation: 8,
+                      shadowColor: Colors.black26,
                       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(32),
                       ),
                     ),
                     child: Text(
@@ -78,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
+
                   const Spacer(flex: 2),
                 ],
               ),
@@ -88,5 +93,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-

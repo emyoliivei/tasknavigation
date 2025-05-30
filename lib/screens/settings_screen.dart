@@ -41,19 +41,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Fundo preto no escuro, branco no claro
-    final backgroundColor = isDark ? Colors.black : Colors.white;
+    final backgroundColor = isDark ? const Color.fromARGB(255, 53, 50, 50) : Colors.white;
 
     // Borda roxa mais viva no modo escuro, roxa padrão no claro
-    final borderColor = isDark ? Colors.deepPurpleAccent : Colors.deepPurple;
+    final borderColor = isDark ? Colors.deepPurpleAccent :  const Color(0xFF8E24AA);
 
     final textColor = isDark ? Colors.white : Colors.black87;
-    final secondaryTextColor = isDark ? Colors.grey[400] : Colors.grey[800];
+    final secondaryTextColor = isDark ? Colors.grey[400] : const Color.fromARGB(255, 44, 38, 38);
     final switchActiveColor = Colors.deepPurpleAccent;
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor:  const Color(0xFF8E24AA),
         title: Text(
           'Configurações',
           style: GoogleFonts.montserrat(
@@ -75,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   BoxShadow(
                     color: isDark
                         ? Colors.deepPurpleAccent.withOpacity(0.6)
-                        : Colors.deepPurple.withOpacity(0.4),
+                        : const Color(0xFF8E24AA).withOpacity(0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -84,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: CircleAvatar(
                 radius: 64,
                 backgroundColor:
-                    isDark ? Colors.deepPurple.shade700 : Colors.deepPurple.shade100,
+                    isDark ? Colors.deepPurple.shade700 : const Color.fromARGB(255, 134, 129, 143),
                 backgroundImage: _profileImage != null
                     ? FileImage(_profileImage!) as ImageProvider
                     : const AssetImage('assets/default_profile.png'),
@@ -96,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: const Text('Trocar Foto de Perfil'),
               onPressed: _pickImage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor:  const Color(0xFF8E24AA),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -122,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide(color: switchActiveColor, width: 3),
                 ),
-                fillColor: isDark ? Colors.deepPurple.shade900 : Colors.deepPurple.shade50,
+                fillColor: isDark ? const Color.fromARGB(255, 142, 27, 146) : Colors.deepPurple.shade50,
                 filled: true,
               ),
               onChanged: (value) {
