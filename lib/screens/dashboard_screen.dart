@@ -18,7 +18,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   static final List<Widget> _pages = [
     const TasksScreen(),
     ProjectsScreen(),
-    ReportsScreen(), // <-- Tela real de relatórios
+    ReportsScreen(), 
     CollaborationScreen(),
     SettingsScreen(),
   ];

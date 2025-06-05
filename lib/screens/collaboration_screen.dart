@@ -36,7 +36,7 @@ class CollaborationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF8E24AA), // Roxo mais visível
+        backgroundColor: const Color(0xFF8E24AA), 
         title: Text(
           'Colaboração Institucional',
           style: GoogleFonts.montserrat(
@@ -61,7 +61,7 @@ class CollaborationScreen extends StatelessWidget {
             elevation: 4,
             color: isDark
                 ? theme.colorScheme.surfaceVariant
-                : const Color(0xFF8E24AA), // Roxo mais claro e legível
+                :  Colors.grey[100], 
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -72,7 +72,7 @@ class CollaborationScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -80,7 +80,7 @@ class CollaborationScreen extends StatelessWidget {
                     dept['description'] ?? '',
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
-                      color: Colors.white70,
+                      color: const Color.fromARGB(179, 17, 17, 17), 
                     ),
                   ),
                   const Divider(height: 24, thickness: 1, color: Colors.white38),

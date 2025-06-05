@@ -7,6 +7,8 @@ import 'screens/projects_screen.dart';
 import 'screens/reports_screen.dart';
 import 'screens/collaboration_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/criar_conta_screen.dart';
+
 
 void main() {
   runApp(const TaskNavigationApp());
@@ -48,6 +50,9 @@ class TaskNavigationApp extends StatelessWidget {
             '/relatorios': (context) => const ReportsScreen(),
             '/colaboracao': (context) => CollaborationScreen(),
             '/configuracao': (context) => const SettingsScreen(),
+            '/criarConta': (context) => const CriarContaScreen(),
+
+            
           },
         );
       },

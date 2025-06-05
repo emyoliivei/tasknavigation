@@ -62,7 +62,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color:const Color(0xFF8E24AA)),
+                      borderSide: BorderSide(color: const Color(0xFF8E24AA)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -81,7 +81,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color:const Color(0xFF8E24AA)),
+                      borderSide: BorderSide(color: const Color(0xFF8E24AA)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -109,9 +109,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                               data: Theme.of(context).copyWith(
                                 colorScheme: isDark
                                     ? const ColorScheme.dark(
-                                        primary: const Color(0xFF8E24AA),
+                                        primary: Color(0xFF8E24AA),
                                         onPrimary: Colors.white,
-                                        surface: const Color(0xFF8E24AA),
+                                        surface: Color(0xFF8E24AA),
                                         onSurface: Colors.white,
                                       )
                                     : const ColorScheme.light(),
@@ -193,7 +193,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:const Color(0xFF8E24AA),
+        backgroundColor: const Color(0xFF8E24AA),
         title: Text(
           'Projetos',
           style: GoogleFonts.montserrat(
@@ -202,6 +202,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           ),
         ),
         centerTitle: true,
+        automaticallyImplyLeading: false,  // Removendo seta de voltar
       ),
       body: Column(
         children: [
@@ -299,4 +300,5 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
   }
 }
+
 

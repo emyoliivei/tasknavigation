@@ -21,8 +21,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/logo.png
-    - assets/default_profile.png
+
+    - assets/logo_moderna.png
 
 
 

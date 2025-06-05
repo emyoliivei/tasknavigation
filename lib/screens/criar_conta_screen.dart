@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class CriarContaScreen extends StatefulWidget {
+  const CriarContaScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<CriarContaScreen> createState() => _CriarContaScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usuarioController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
 
@@ -34,14 +35,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   void dispose() {
     _animationController.dispose();
+    _nomeController.dispose();
+    _emailController.dispose();
     _usuarioController.dispose();
     _senhaController.dispose();
     super.dispose();
   }
 
-  void _login() {
+  void _criarConta() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      // Simula sucesso na criação
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Conta criada com sucesso!')),
+      );
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
@@ -84,10 +91,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.lock_outline, size: 60, color: primaryColor),
+                        Icon(Icons.person_add_alt_1, size: 60, color: primaryColor),
                         const SizedBox(height: 20),
                         Text(
-                          'Login',
+                          'Criar Conta',
                           style: GoogleFonts.montserrat(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
@@ -95,6 +102,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                         ),
                         const SizedBox(height: 30),
+
+                        // Nome
+                        TextFormField(
+                          controller: _nomeController,
+                          decoration: _buildInputDecoration('Nome completo', Icons.person),
+                          validator: (value) => value == null || value.isEmpty ? 'Informe seu nome' : null,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Email
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: _buildInputDecoration('Email', Icons.email_outlined),
+                          validator: (value) => value == null || !value.contains('@') ? 'Email inválido' : null,
+                        ),
+                        const SizedBox(height: 16),
 
                         // Usuário
                         TextFormField(
@@ -113,18 +136,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 28),
 
-                        // Botão Entrar
+                        // Botão Cadastrar
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: _login,
+                            onPressed: _criarConta,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryColor,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             ),
                             child: Text(
-                              'Entrar',
+                              'Cadastrar',
                               style: GoogleFonts.montserrat(fontSize: 18, color: Colors.white),
                             ),
                           ),
@@ -132,11 +155,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                         const SizedBox(height: 16),
 
-                        // Voltar para criar conta
+                        // Voltar ao login
                         TextButton(
-                          onPressed: () => Navigator.pushReplacementNamed(context, '/criarConta'),
+                          onPressed: () => Navigator.pop(context),
                           child: Text(
-                            'Criar conta',
+                            'Voltar ao Login',
                             style: GoogleFonts.montserrat(
                               color: primaryColor,
                               fontWeight: FontWeight.w500,
@@ -169,4 +192,3 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 }
-

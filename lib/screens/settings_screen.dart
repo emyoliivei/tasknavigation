@@ -40,20 +40,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Fundo preto no escuro, branco no claro
-    final backgroundColor = isDark ? const Color.fromARGB(255, 53, 50, 50) : Colors.white;
+    final backgroundColor = isDark ? const Color.fromARGB(255, 34, 34, 34) : Colors.white;
 
-    // Borda roxa mais viva no modo escuro, roxa padrão no claro
-    final borderColor = isDark ? Colors.deepPurpleAccent :  const Color(0xFF8E24AA);
+    final borderColor = isDark ? const Color(0xFF8E24AA) : const Color(0xFF8E24AA);
 
     final textColor = isDark ? Colors.white : Colors.black87;
-    final secondaryTextColor = isDark ? Colors.grey[400] : const Color.fromARGB(255, 44, 38, 38);
+    final secondaryTextColor = isDark ? const Color.fromARGB(255, 0, 0, 0) : const Color.fromARGB(255, 44, 38, 38);
     final switchActiveColor = Colors.deepPurpleAccent;
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor:  const Color(0xFF8E24AA),
+        backgroundColor: const Color(0xFF8E24AA),
         title: Text(
           'Configurações',
           style: GoogleFonts.montserrat(
@@ -63,6 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         centerTitle: true,
         elevation: 0,
+        automaticallyImplyLeading: false,  // <- aqui remove a seta de voltar
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -75,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   BoxShadow(
                     color: isDark
                         ? Colors.deepPurpleAccent.withOpacity(0.6)
-                        : const Color(0xFF8E24AA).withOpacity(0.4),
+                        : const Color.fromARGB(255, 85, 78, 87).withOpacity(0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -84,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: CircleAvatar(
                 radius: 64,
                 backgroundColor:
-                    isDark ? Colors.deepPurple.shade700 : const Color.fromARGB(255, 134, 129, 143),
+                    isDark ? Colors.deepPurple.shade700 : const Color.fromARGB(255, 46, 46, 46),
                 backgroundImage: _profileImage != null
                     ? FileImage(_profileImage!) as ImageProvider
                     : const AssetImage('assets/default_profile.png'),
@@ -96,13 +95,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: const Text('Trocar Foto de Perfil'),
               onPressed: _pickImage,
               style: ElevatedButton.styleFrom(
-                backgroundColor:  const Color(0xFF8E24AA),
+                backgroundColor: const Color.fromARGB(255, 219, 215, 219),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 elevation: 6,
-                shadowColor: Colors.deepPurpleAccent,
+                shadowColor: const Color.fromARGB(255, 184, 184, 184),
                 textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
@@ -122,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide(color: switchActiveColor, width: 3),
                 ),
-                fillColor: isDark ? const Color.fromARGB(255, 142, 27, 146) : Colors.deepPurple.shade50,
+                fillColor: isDark ? const Color.fromARGB(255, 49, 49, 49) : Colors.deepPurple.shade50,
                 filled: true,
               ),
               onChanged: (value) {

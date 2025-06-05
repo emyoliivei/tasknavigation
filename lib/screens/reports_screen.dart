@@ -6,22 +6,17 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor =  const Color(0xFF8E24AA);
+    final primaryColor = const Color(0xFF8E24AA);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:  const Color(0xFF8E24AA),
+        backgroundColor: const Color(0xFF8E24AA),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.deepPurple),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        automaticallyImplyLeading: false, // remove seta de voltar
         title: Text(
           'Relatórios',
           style: GoogleFonts.montserrat(
-            color:const Color.fromARGB(255, 255, 255, 255) ,
+            color: const Color.fromARGB(255, 255, 255, 255),
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -84,7 +79,7 @@ class ReportsScreen extends StatelessWidget {
                       ),
                       trailing: PopupMenuButton<String>(
                         onSelected: (value) {
-                          // TODO: Implementar ações
+                          //  Implementar ações
                         },
                         itemBuilder: (context) => [
                           const PopupMenuItem(
@@ -107,7 +102,7 @@ class ReportsScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // TODO: Criar novo relatório
+                  //  Criar novo relatório
                 },
                 icon: const Icon(Icons.add),
                 label: Text(
@@ -133,4 +128,5 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 }
+  
 
