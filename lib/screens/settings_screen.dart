@@ -45,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final borderColor = isDark ? const Color(0xFF8E24AA) : const Color(0xFF8E24AA);
 
     final textColor = isDark ? Colors.white : Colors.black87;
-    final secondaryTextColor = isDark ? const Color.fromARGB(255, 0, 0, 0) : const Color.fromARGB(255, 44, 38, 38);
+    final secondaryTextColor = isDark ? const Color.fromARGB(255, 0, 0, 0) : const Color.fromARGB(255, 19, 17, 17);
     final switchActiveColor = Colors.deepPurpleAccent;
 
     return Scaffold(

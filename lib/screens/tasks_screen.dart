@@ -66,6 +66,8 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<void> _editTaskDialog({int? index}) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     Map<String, dynamic>? task;
     if (index != null) {
       task = _filteredTasks[index];
@@ -84,7 +86,14 @@ class _TasksScreenState extends State<TasksScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(index == null ? 'Nova Tarefa' : 'Editar Tarefa'),
+          backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+          title: Text(
+            index == null ? 'Nova Tarefa' : 'Editar Tarefa',
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: StatefulBuilder(
             builder: (context, setStateDialog) {
               return Form(
@@ -95,15 +104,34 @@ class _TasksScreenState extends State<TasksScreen> {
                     children: [
                       TextFormField(
                         initialValue: _editTitle,
-                        decoration: const InputDecoration(labelText: 'Título'),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                        decoration: InputDecoration(
+                          labelText: 'Título',
+                          labelStyle:
+                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Color(0xFF8E24AA)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         validator: (value) =>
                             value == null || value.isEmpty ? 'Digite o título' : null,
                         onChanged: (value) => _editTitle = value,
                       ),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           Expanded(
-                            child: Text('Prazo: ${_editDeadline.toLocal().toString().split(' ')[0]}'),
+                            child: Text(
+                              'Prazo: ${_editDeadline.toLocal().toString().split(' ')[0]}',
+                              style:
+                                  TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+                            ),
                           ),
                           TextButton(
                             onPressed: () async {
@@ -112,6 +140,21 @@ class _TasksScreenState extends State<TasksScreen> {
                                 initialDate: _editDeadline,
                                 firstDate: DateTime.now().subtract(const Duration(days: 365)),
                                 lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: isDark
+                                          ? const ColorScheme.dark(
+                                              primary: Color(0xFF8E24AA),
+                                              onPrimary: Colors.white,
+                                              surface: Color(0xFF8E24AA),
+                                              onSurface: Colors.white,
+                                            )
+                                          : const ColorScheme.light(),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
                               );
                               if (picked != null) {
                                 setStateDialog(() {
@@ -119,10 +162,14 @@ class _TasksScreenState extends State<TasksScreen> {
                                 });
                               }
                             },
-                            child: const Text('Selecionar'),
+                            child: Text(
+                              'Selecionar',
+                              style: TextStyle(color: const Color(0xFF8E24AA)),
+                            ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
                         value: _editPriority,
                         items: const [
@@ -137,11 +184,41 @@ class _TasksScreenState extends State<TasksScreen> {
                             });
                           }
                         },
-                        decoration: const InputDecoration(labelText: 'Prioridade'),
+                        decoration: InputDecoration(
+                          labelText: 'Prioridade',
+                          labelStyle:
+                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Color(0xFF8E24AA)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        dropdownColor: isDark ? Colors.grey[900] : Colors.white,
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                       ),
+                      const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _editAssignedTo,
-                        decoration: const InputDecoration(labelText: 'Atribuído a'),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                        decoration: InputDecoration(
+                          labelText: 'Atribuído a',
+                          labelStyle:
+                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Color(0xFF8E24AA)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         validator: (value) =>
                             value == null || value.isEmpty ? 'Digite o responsável' : null,
                         onChanged: (value) => _editAssignedTo = value,
@@ -155,9 +232,13 @@ class _TasksScreenState extends State<TasksScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+              ),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8E24AA)),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   setState(() {
@@ -182,7 +263,10 @@ class _TasksScreenState extends State<TasksScreen> {
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Salvar'),
+              child: const Text(
+                'Salvar',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -291,24 +375,23 @@ class _TasksScreenState extends State<TasksScreen> {
                                 onPressed: () => _editTaskDialog(index: index),
                               ),
                               IconButton(
-                                icon
-: const Icon(Icons.delete, color: Colors.redAccent),
-onPressed: () => _deleteTask(index),
-),
-],
-),
-),
-);
-},
-),
-),
-],
-),
-floatingActionButton: FloatingActionButton(
-onPressed: () => _editTaskDialog(),
-backgroundColor: const Color(0xFF673AB7),
-child: const Icon(Icons.add),
-),
-);
-}
+                                icon: const Icon(Icons.delete, color: Colors.redAccent),
+                                onPressed: () => _deleteTask(index),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _editTaskDialog(),
+        backgroundColor: const Color(0xFF673AB7),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
 }

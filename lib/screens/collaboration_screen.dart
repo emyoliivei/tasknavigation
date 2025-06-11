@@ -33,10 +33,15 @@ class CollaborationScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final cardColor = isDark ? const Color.fromARGB(255, 27, 27, 27) : const Color.fromARGB(255, 255, 255, 255);
+    final primaryTextColor = isDark ? Colors.white : Colors.black;
+    final secondaryTextColor = isDark ? Colors.white70 : Colors.black87;
+    final labelTextColor = isDark ? Colors.white : Colors.black;
+
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF8E24AA), 
+        backgroundColor: const Color(0xFF8E24AA),
         title: Text(
           'Colaboração Institucional',
           style: GoogleFonts.montserrat(
@@ -59,9 +64,7 @@ class CollaborationScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             elevation: 4,
-            color: isDark
-                ? theme.colorScheme.surfaceVariant
-                :  Colors.grey[100], 
+            color: cardColor,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -72,7 +75,7 @@ class CollaborationScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: const Color.fromARGB(255, 0, 0, 0),
+                      color: primaryTextColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -80,22 +83,22 @@ class CollaborationScreen extends StatelessWidget {
                     dept['description'] ?? '',
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
-                      color: const Color.fromARGB(179, 17, 17, 17), 
+                      color: secondaryTextColor,
                     ),
                   ),
-                  const Divider(height: 24, thickness: 1, color: Colors.white38),
+                  const Divider(height: 24, thickness: 1),
                   Text(
                     'Chefe do Setor:',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: labelTextColor,
                     ),
                   ),
                   Text(
                     dept['chief'] ?? '',
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
-                      color: Colors.white70,
+                      color: secondaryTextColor,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -103,14 +106,14 @@ class CollaborationScreen extends StatelessWidget {
                     'Email:',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: labelTextColor,
                     ),
                   ),
                   Text(
                     dept['email'] ?? '',
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
-                      color: Colors.white,
+                      color: secondaryTextColor,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -119,7 +122,7 @@ class CollaborationScreen extends StatelessWidget {
                     'Biografia:',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: labelTextColor,
                     ),
                   ),
                   Text(
@@ -127,7 +130,7 @@ class CollaborationScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 15,
                       fontStyle: FontStyle.italic,
-                      color: Colors.white70,
+                      color: secondaryTextColor,
                     ),
                   ),
                 ],

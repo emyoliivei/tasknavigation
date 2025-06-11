@@ -1,7 +1,6 @@
 name: TaskNavigationApp
 description: A new Flutter project.
 
-# Versões de ambiente (exemplo)
 environment:
   sdk: ">=2.17.0 <4.0.0"
 
@@ -19,16 +18,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
   assets:
-
     - assets/logo_moderna.png
-
-
-
-
-
-
-
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options

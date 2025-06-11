@@ -38,7 +38,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          backgroundColor: isDark ? Colors.deepPurple[900] : Colors.white,
+          backgroundColor: isDark ? Colors.grey[900] : Colors.white,
           title: Text(
             index == null ? 'Novo Projeto' : 'Editar Projeto',
             style: TextStyle(
@@ -159,7 +159,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Salvar'),
+              child: const Text(
+                'Salvar',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -202,7 +205,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           ),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false,  // Removendo seta de voltar
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -212,7 +215,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               style: TextStyle(color: isDark ? Colors.white : Colors.black87),
               decoration: InputDecoration(
                 labelText: 'Buscar projeto',
-                labelStyle: TextStyle(color: isDark ? Colors.grey : const Color.fromARGB(255, 63, 60, 60)),
+                labelStyle: TextStyle(
+                    color: isDark ? Colors.grey : const Color.fromARGB(255, 63, 60, 60)),
                 prefixIcon: Icon(Icons.search, color: isDark ? Colors.white : Colors.black),
                 filled: isDark,
                 fillColor: isDark ? Colors.white10 : null,
@@ -243,7 +247,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   ),
                   elevation: 4,
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  color: isDark ? Colors.grey[850] : Colors.grey[100],
+                  color: isDark ? const Color.fromARGB(255, 24, 23, 23) : Colors.grey[100],
                   child: ListTile(
                     title: Text(
                       project['title'] ?? '',
@@ -300,5 +304,3 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
   }
 }
-
-

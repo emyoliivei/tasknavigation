@@ -41,7 +41,7 @@ class HomeScreen extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
                       child: Image.asset(
-                        'assets/images/logo_moderna.png',
+                        'assets/logo_moderna.png',
                         fit: BoxFit.cover,
                       ),
                     ),
