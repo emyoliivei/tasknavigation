@@ -132,11 +132,23 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                         const SizedBox(height: 16),
 
-                        // Voltar para criar conta
+                        // Criar conta
                         TextButton(
                           onPressed: () => Navigator.pushReplacementNamed(context, '/criarConta'),
                           child: Text(
                             'Criar conta',
+                            style: GoogleFonts.montserrat(
+                              color: primaryColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+
+                        // Esqueci minha senha
+                        TextButton(
+                          onPressed: () => Navigator.pushNamed(context, '/esqueciSenha'),
+                          child: Text(
+                            'Esqueci minha senha',
                             style: GoogleFonts.montserrat(
                               color: primaryColor,
                               fontWeight: FontWeight.w500,
@@ -169,4 +181,3 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 }
-
