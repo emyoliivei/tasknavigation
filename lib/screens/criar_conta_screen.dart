@@ -62,7 +62,8 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF8E24AA), Color(0xFF512DA8)],
+                colors: [ Color.fromARGB(255, 76, 26, 122),
+              Color.fromARGB(255, 104, 24, 126),],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,8 +11,8 @@ class HomeScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF9B51E0), // Roxo vibrante (começo)
-              const Color(0xFF8E24AA), // Roxo escuro elegante (fim)
+              Color.fromARGB(255, 76, 26, 122),
+              Color.fromARGB(255, 104, 24, 126),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -24,56 +25,56 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo moderna
-                  Container(
-                    width: 150,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        'assets/logo_moderna.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Task Navigation',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Seja bem vindo a Task Navigation',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 18,
+                  // LOGO MAIOR
+                  SizedBox(
+                    width: 230,
+                    height: 230,
+                    child: Image.asset(
+                      'assets/logo_moderna.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                   const SizedBox(height: 40),
+
+                  // Texto com fonte League Spartan
+                  Text(
+                    'Task Navigation',
+                    style: GoogleFonts.leagueSpartan(
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Subtítulo com fonte Sans Serif clean
+                  Text(
+                    'Seja bem-vindo(a) à Task Navigation',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.openSans(
+                      textStyle: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 36),
+
+                  // Botão estiloso
                   ElevatedButton.icon(
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text(
+                    label: Text(
                       'Get Started',
-                      style: TextStyle(fontSize: 16),
+                      style: GoogleFonts.openSans(
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor:const Color(0xFF8E24AA), // Roxo vivo
+                      foregroundColor: const Color(0xFF8E24AA),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -94,5 +95,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-
