@@ -17,6 +17,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
 
+  bool _loading = false;
+  String? _erro;
+
   @override
   void initState() {
     super.initState();
@@ -39,9 +42,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
+  void _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _loading = true;
+      _erro = null;
+    });
+
+    // Simulação de login local
+    await Future.delayed(const Duration(seconds: 1)); // efeito de "carregando"
+
+    setState(() {
+      _loading = false;
+    });
+
+    if (_usuarioController.text.trim() == "admin" &&
+        _senhaController.text.trim() == "1234") {
       Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      setState(() {
+        _erro = 'Usuário ou senha inválidos';
+      });
     }
   }
 
@@ -55,8 +77,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [ Color.fromARGB(255, 76, 26, 122),
-              Color.fromARGB(255, 104, 24, 126),],
+                colors: [
+                  Color.fromARGB(255, 76, 26, 122),
+                  Color.fromARGB(255, 104, 24, 126),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -101,7 +125,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         TextFormField(
                           controller: _usuarioController,
                           decoration: _buildInputDecoration('Usuário', Icons.person_outline),
-                          validator: (value) => value == null || value.isEmpty ? 'Informe o usuário' : null,
+                          validator: (value) =>
+                              value == null || value.isEmpty ? 'Informe o usuário' : null,
                         ),
                         const SizedBox(height: 16),
 
@@ -110,25 +135,42 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           controller: _senhaController,
                           obscureText: true,
                           decoration: _buildInputDecoration('Senha', Icons.lock_outline),
-                          validator: (value) => value == null || value.length < 4 ? 'Senha muito curta' : null,
+                          validator: (value) =>
+                              value == null || value.length < 4 ? 'Senha muito curta' : null,
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 20),
+
+                        if (_erro != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              _erro!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
 
                         // Botão Entrar
                         SizedBox(
                           width: double.infinity,
                           height: 50,
-                          child: ElevatedButton(
-                            onPressed: _login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColor,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            ),
-                            child: Text(
-                              'Entrar',
-                              style: GoogleFonts.montserrat(fontSize: 18, color: Colors.white),
-                            ),
-                          ),
+                          child: _loading
+                              ? const Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                  onPressed: _login,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Entrar',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
                         ),
 
                         const SizedBox(height: 16),

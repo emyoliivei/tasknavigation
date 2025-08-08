@@ -9,9 +9,8 @@ import 'screens/reports_screen.dart';
 import 'screens/collaboration_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/criar_conta_screen.dart';
-
-
-
+import 'screens/validarcodigo_screen.dart';
+import 'screens/redefinirsenha_screen.dart';
 
 void main() {
   runApp(const TaskNavigationApp());
@@ -55,9 +54,8 @@ class TaskNavigationApp extends StatelessWidget {
             '/configuracao': (context) => const SettingsScreen(),
             '/criarConta': (context) => const CriarContaScreen(),
             '/esqueciSenha': (context) => const EsqueciSenhaScreen(),
-
-
-            
+            '/validarCodigo': (context) => const ValidarCodigoScreen(),
+            '/redefinirSenha': (context) => const RedefinirSenhaScreen(),
           },
         );
       },

@@ -18,7 +18,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Link de recuperação enviado para o e-mail.')),
       );
-      Navigator.pop(context); // Volta para a tela de login
+      Navigator.pushNamed(context, '/validarCodigo');  // Aqui está a mudança
     }
   }
 
@@ -98,4 +98,3 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
     );
   }
 }
-
