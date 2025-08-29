@@ -73,7 +73,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 boxShadow: [
                   BoxShadow(
                     color: isDark
+                        // ignore: deprecated_member_use
                         ? Colors.deepPurpleAccent.withOpacity(0.6)
+                        // ignore: deprecated_member_use
                         : const Color.fromARGB(255, 85, 78, 87).withOpacity(0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
@@ -145,6 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 });
               },
               secondary: Icon(Icons.dark_mode, color: borderColor),
+              // ignore: deprecated_member_use
               activeColor: switchActiveColor,
             ),
             SwitchListTile(

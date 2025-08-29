@@ -39,6 +39,7 @@ class CollaborationScreen extends StatelessWidget {
     final labelTextColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
+      // ignore: deprecated_member_use
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: const Color(0xFF8E24AA),

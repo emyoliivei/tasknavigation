@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,8 +11,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _usuarioController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
 
   late AnimationController _animationController;
@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   void dispose() {
     _animationController.dispose();
-    _usuarioController.dispose();
+    _emailController.dispose();
     _senhaController.dispose();
     super.dispose();
   }
@@ -50,20 +50,26 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       _erro = null;
     });
 
-    // Simulação de login local
-    await Future.delayed(const Duration(seconds: 1)); // efeito de "carregando"
+    final result = await ApiService.login(
+      _emailController.text.trim(), // envia o email correto
+      _senhaController.text.trim(),
+    );
 
     setState(() {
       _loading = false;
     });
 
-    if (_usuarioController.text.trim() == "admin" &&
-        _senhaController.text.trim() == "1234") {
-      Navigator.pushReplacementNamed(context, '/dashboard');
-    } else {
+    if (result == null) {
       setState(() {
-        _erro = 'Usuário ou senha inválidos';
+        _erro = 'Falha na conexão com o servidor';
       });
+    } else if (result['error'] != null) {
+      setState(() {
+        _erro = result['error'];
+      });
+    } else {
+      // Login bem-sucedido
+      Navigator.pushReplacementNamed(context, '/dashboard');
     }
   }
 
@@ -79,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               gradient: LinearGradient(
                 colors: [
                   Color.fromARGB(255, 76, 26, 122),
-                  Color.fromARGB(255, 104, 24, 126),
+                  Color.fromARGB(255, 185, 161, 250),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -94,11 +100,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
+                    color: Colors.white.withAlpha((0.95 * 255).round()),
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withAlpha((0.15 * 255).round()),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -121,16 +127,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 30),
 
-                        // Usuário
+                        // Campo Email
                         TextFormField(
-                          controller: _usuarioController,
-                          decoration: _buildInputDecoration('Usuário', Icons.person_outline),
+                          controller: _emailController,
+                          decoration: _buildInputDecoration('Email', Icons.email_outlined)
+                              .copyWith(hintText: 'Digite seu email'),
                           validator: (value) =>
-                              value == null || value.isEmpty ? 'Informe o usuário' : null,
+                              value == null || !value.contains('@') ? 'Email inválido' : null,
                         ),
                         const SizedBox(height: 16),
 
-                        // Senha
+                        // Campo Senha
                         TextFormField(
                           controller: _senhaController,
                           obscureText: true,
@@ -149,7 +156,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             ),
                           ),
 
-                        // Botão Entrar
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -175,7 +181,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                         const SizedBox(height: 16),
 
-                        // Criar conta
                         TextButton(
                           onPressed: () => Navigator.pushReplacementNamed(context, '/criarConta'),
                           child: Text(
@@ -187,7 +192,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                         ),
 
-                        // Esqueci minha senha
                         TextButton(
                           onPressed: () => Navigator.pushNamed(context, '/esqueciSenha'),
                           child: Text(

@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.1.0
+
 
   cupertino_icons: ^1.0.2
   google_fonts: ^5.0.0
@@ -25,3 +27,5 @@ flutter:
   
   assets:
     - assets/logo_moderna.png
+
+

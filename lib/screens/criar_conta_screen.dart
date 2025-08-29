@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/api_service.dart';
 
 class CriarContaScreen extends StatefulWidget {
   const CriarContaScreen({super.key});
@@ -12,8 +13,8 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _usuarioController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
+  final TextEditingController _confirmSenhaController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
@@ -37,14 +38,41 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
     _animationController.dispose();
     _nomeController.dispose();
     _emailController.dispose();
-    _usuarioController.dispose();
     _senhaController.dispose();
+    _confirmSenhaController.dispose();
     super.dispose();
   }
 
-  void _criarConta() {
-    if (_formKey.currentState!.validate()) {
-      // Simula sucesso na criação
+  void _criarConta() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_senhaController.text != _confirmSenhaController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('As senhas não conferem')),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final res = await ApiService.register(
+      _nomeController.text,
+      _emailController.text,
+      '', // removido o usuário
+      _senhaController.text,
+    );
+
+    Navigator.pop(context);
+
+    if (res?['error'] != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res!['error'])),
+      );
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Conta criada com sucesso!')),
       );
@@ -62,8 +90,10 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [ Color.fromARGB(255, 76, 26, 122),
-              Color.fromARGB(255, 104, 24, 126),],
+                colors: [
+                  Color.fromARGB(255, 76, 26, 122),
+                  Color.fromARGB(255, 104, 24, 126),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -77,11 +107,11 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
+                    color: Colors.white.withAlpha((0.95 * 255).round()),
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withAlpha((0.15 * 255).round()),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -107,7 +137,7 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
                         // Nome
                         TextFormField(
                           controller: _nomeController,
-                          decoration: _buildInputDecoration('Nome completo', Icons.person),
+                          decoration: _buildInputDecoration('Nome', Icons.person),
                           validator: (value) => value == null || value.isEmpty ? 'Informe seu nome' : null,
                         ),
                         const SizedBox(height: 16),
@@ -120,19 +150,20 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
                         ),
                         const SizedBox(height: 16),
 
-                        // Usuário
-                        TextFormField(
-                          controller: _usuarioController,
-                          decoration: _buildInputDecoration('Usuário', Icons.person_outline),
-                          validator: (value) => value == null || value.isEmpty ? 'Informe o usuário' : null,
-                        ),
-                        const SizedBox(height: 16),
-
                         // Senha
                         TextFormField(
                           controller: _senhaController,
                           obscureText: true,
                           decoration: _buildInputDecoration('Senha', Icons.lock_outline),
+                          validator: (value) => value == null || value.length < 4 ? 'Senha muito curta' : null,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Confirmar Senha
+                        TextFormField(
+                          controller: _confirmSenhaController,
+                          obscureText: true,
+                          decoration: _buildInputDecoration('Confirmar Senha', Icons.lock_outline),
                           validator: (value) => value == null || value.length < 4 ? 'Senha muito curta' : null,
                         ),
                         const SizedBox(height: 28),
@@ -153,7 +184,6 @@ class _CriarContaScreenState extends State<CriarContaScreen> with SingleTickerPr
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 16),
 
                         // Voltar ao login

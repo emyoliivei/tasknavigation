@@ -52,7 +52,7 @@ class HomeScreen extends StatelessWidget {
 
                   // Subtítulo com fonte Sans Serif clean
                   Text(
-                    'Seja bem-vindo(a) à Task Navigation',
+                    'Seja bem-vindo(a) à Task Navigation! a plataforma ideal para gerenciar as tarefas administrativas do seu aplicativo. Com uma interface intuitiva, você pode organizar, monitorar e otimizar processos de forma eficiente.',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.openSans(
                       textStyle: const TextStyle(

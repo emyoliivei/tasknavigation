@@ -79,6 +79,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ),
           content: StatefulBuilder(
             builder: (context, setStateDialog) {
+              var dropdownButtonFormField = DropdownButtonFormField<String>(
+                        value: category,
+                        items: const [
+                          DropdownMenuItem(value: 'Mensal', child: Text('Mensal')),
+                          DropdownMenuItem(value: 'Semanal', child: Text('Semanal')),
+                          DropdownMenuItem(value: 'Projetos', child: Text('Projetos')),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setStateDialog(() {
+                              category = value;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Categoria',
+                          labelStyle:
+                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: primaryColor),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        dropdownColor: isDark ? Colors.grey[900] : Colors.white,
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                      );
               return Form(
                 key: _formKey,
                 child: SingleChildScrollView(
@@ -130,37 +161,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         onChanged: (value) => summary = value,
                       ),
                       const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        value: category,
-                        items: const [
-                          DropdownMenuItem(value: 'Mensal', child: Text('Mensal')),
-                          DropdownMenuItem(value: 'Semanal', child: Text('Semanal')),
-                          DropdownMenuItem(value: 'Projetos', child: Text('Projetos')),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setStateDialog(() {
-                              category = value;
-                            });
-                          }
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Categoria',
-                          labelStyle:
-                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: primaryColor),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        dropdownColor: isDark ? Colors.grey[900] : Colors.white,
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                      ),
+                      dropdownButtonFormField,
                       const SizedBox(height: 12),
                       Row(
                         children: [

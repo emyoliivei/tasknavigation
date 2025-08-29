@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -9,28 +11,9 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  List<Map<String, dynamic>> _tasks = [
-    {
-      'title': 'Tarefa 1',
-      'deadline': DateTime.now().add(const Duration(days: 3)),
-      'priority': 'Alta',
-      'assignedTo': 'João Silva',
-    },
-    {
-      'title': 'Tarefa 2',
-      'deadline': DateTime.now().add(const Duration(days: 7)),
-      'priority': 'Média',
-      'assignedTo': 'Maria Oliveira',
-    },
-    {
-      'title': 'Tarefa 3',
-      'deadline': DateTime.now().add(const Duration(days: 1)),
-      'priority': 'Baixa',
-      'assignedTo': 'Pedro Santos',
-    },
-  ];
-
+  List<Map<String, dynamic>> _tasks = [];
   List<Map<String, dynamic>> _filteredTasks = [];
+  bool _loading = true;
 
   final _formKey = GlobalKey<FormState>();
   late String _editTitle;
@@ -43,7 +26,28 @@ class _TasksScreenState extends State<TasksScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredTasks = List.from(_tasks);
+    _fetchTasks();
+  }
+
+  Future<String?> _getUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('deileluna11@gmail.com');
+  }
+
+  Future<void> _fetchTasks() async {
+    setState(() => _loading = true);
+    String? email = await _getUserEmail();
+    if (email == null) {
+      setState(() => _loading = false);
+      return;
+    }
+
+    final tasks = await ApiService.getTasks(email);
+    setState(() {
+      _tasks = tasks ?? [];
+      _filteredTasks = List.from(_tasks);
+      _loading = false;
+    });
   }
 
   void _filterTasks(String query) {
@@ -57,9 +61,13 @@ class _TasksScreenState extends State<TasksScreen> {
     });
   }
 
-  void _deleteTask(int index) {
+  void _deleteTask(int index) async {
+    final taskToRemove = _filteredTasks[index];
+
+    // Chamar API para deletar tarefa (precisa implementar no backend)
+    // await ApiService.deleteTask(taskToRemove['id']);
+
     setState(() {
-      final taskToRemove = _filteredTasks[index];
       _tasks.remove(taskToRemove);
       _filteredTasks.removeAt(index);
     });
@@ -72,7 +80,7 @@ class _TasksScreenState extends State<TasksScreen> {
     if (index != null) {
       task = _filteredTasks[index];
       _editTitle = task['title'];
-      _editDeadline = task['deadline'];
+      _editDeadline = DateTime.parse(task['deadline']);
       _editPriority = task['priority'];
       _editAssignedTo = task['assignedTo'];
     } else {
@@ -87,13 +95,7 @@ class _TasksScreenState extends State<TasksScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: isDark ? Colors.grey[900] : Colors.white,
-          title: Text(
-            index == null ? 'Nova Tarefa' : 'Editar Tarefa',
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.black87,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: Text(index == null ? 'Nova Tarefa' : 'Editar Tarefa'),
           content: StatefulBuilder(
             builder: (context, setStateDialog) {
               return Form(
@@ -102,37 +104,20 @@ class _TasksScreenState extends State<TasksScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // === Título ===
                       TextFormField(
                         initialValue: _editTitle,
                         style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                        decoration: InputDecoration(
-                          labelText: 'Título',
-                          labelStyle:
-                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Color(0xFF8E24AA)),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        decoration: InputDecoration(labelText: 'Título'),
                         validator: (value) =>
                             value == null || value.isEmpty ? 'Digite o título' : null,
                         onChanged: (value) => _editTitle = value,
                       ),
                       const SizedBox(height: 12),
+                      // === Prazo ===
                       Row(
                         children: [
-                          Expanded(
-                            child: Text(
-                              'Prazo: ${_editDeadline.toLocal().toString().split(' ')[0]}',
-                              style:
-                                  TextStyle(color: isDark ? Colors.white70 : Colors.black87),
-                            ),
-                          ),
+                          Expanded(child: Text('Prazo: ${_editDeadline.toLocal().toString().split(' ')[0]}')),
                           TextButton(
                             onPressed: () async {
                               DateTime? picked = await showDatePicker(
@@ -140,36 +125,17 @@ class _TasksScreenState extends State<TasksScreen> {
                                 initialDate: _editDeadline,
                                 firstDate: DateTime.now().subtract(const Duration(days: 365)),
                                 lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-                                builder: (context, child) {
-                                  return Theme(
-                                    data: Theme.of(context).copyWith(
-                                      colorScheme: isDark
-                                          ? const ColorScheme.dark(
-                                              primary: Color(0xFF8E24AA),
-                                              onPrimary: Colors.white,
-                                              surface: Color(0xFF8E24AA),
-                                              onSurface: Colors.white,
-                                            )
-                                          : const ColorScheme.light(),
-                                    ),
-                                    child: child!,
-                                  );
-                                },
                               );
                               if (picked != null) {
-                                setStateDialog(() {
-                                  _editDeadline = picked;
-                                });
+                                setStateDialog(() => _editDeadline = picked);
                               }
                             },
-                            child: Text(
-                              'Selecionar',
-                              style: TextStyle(color: const Color(0xFF8E24AA)),
-                            ),
+                            child: const Text('Selecionar', style: TextStyle(color: Color(0xFF8E24AA))),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
+                      // === Prioridade ===
                       DropdownButtonFormField<String>(
                         value: _editPriority,
                         items: const [
@@ -178,47 +144,16 @@ class _TasksScreenState extends State<TasksScreen> {
                           DropdownMenuItem(value: 'Baixa', child: Text('Baixa')),
                         ],
                         onChanged: (value) {
-                          if (value != null) {
-                            setStateDialog(() {
-                              _editPriority = value;
-                            });
-                          }
+                          if (value != null) setStateDialog(() => _editPriority = value);
                         },
-                        decoration: InputDecoration(
-                          labelText: 'Prioridade',
-                          labelStyle:
-                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Color(0xFF8E24AA)),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        dropdownColor: isDark ? Colors.grey[900] : Colors.white,
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                        decoration: const InputDecoration(labelText: 'Prioridade'),
                       ),
                       const SizedBox(height: 12),
+                      // === Responsável ===
                       TextFormField(
                         initialValue: _editAssignedTo,
                         style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                        decoration: InputDecoration(
-                          labelText: 'Atribuído a',
-                          labelStyle:
-                              TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: isDark ? Colors.white54 : Colors.grey),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Color(0xFF8E24AA)),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        decoration: const InputDecoration(labelText: 'Atribuído a'),
                         validator: (value) =>
                             value == null || value.isEmpty ? 'Digite o responsável' : null,
                         onChanged: (value) => _editAssignedTo = value,
@@ -230,13 +165,7 @@ class _TasksScreenState extends State<TasksScreen> {
             },
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
-              ),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8E24AA)),
               onPressed: () {
@@ -245,7 +174,7 @@ class _TasksScreenState extends State<TasksScreen> {
                     if (index == null) {
                       _tasks.add({
                         'title': _editTitle,
-                        'deadline': _editDeadline,
+                        'deadline': _editDeadline.toIso8601String(),
                         'priority': _editPriority,
                         'assignedTo': _editAssignedTo,
                       });
@@ -253,7 +182,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       int taskIndex = _tasks.indexOf(task!);
                       _tasks[taskIndex] = {
                         'title': _editTitle,
-                        'deadline': _editDeadline,
+                        'deadline': _editDeadline.toIso8601String(),
                         'priority': _editPriority,
                         'assignedTo': _editAssignedTo,
                       };
@@ -263,10 +192,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   Navigator.pop(context);
                 }
               },
-              child: const Text(
-                'Salvar',
-                style: TextStyle(color: Colors.white),
-              ),
+              child: const Text('Salvar', style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -294,99 +220,67 @@ class _TasksScreenState extends State<TasksScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF8E24AA),
-        title: Text(
-          'Tarefas',
-          style: GoogleFonts.montserrat(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        title: Text('Tarefas', style: GoogleFonts.montserrat(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-              decoration: InputDecoration(
-                labelText: 'Pesquisar tarefas',
-                labelStyle: TextStyle(color: isDark ? Colors.white70 : Colors.grey[700]),
-                prefixIcon: Icon(Icons.search, color: isDark ? Colors.white : Colors.black),
-                filled: isDark,
-                fillColor: isDark ? Colors.white10 : Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: _filterTasks,
-            ),
-          ),
-          Expanded(
-            child: _filteredTasks.isEmpty
-                ? const Center(child: Text('Nenhuma tarefa encontrada'))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: _filteredTasks.length,
-                    itemBuilder: (context, index) {
-                      final task = _filteredTasks[index];
-                      return Card(
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(12),
-                          title: Text(
-                            task['title'],
-                            style: GoogleFonts.montserrat(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Prazo: ${task['deadline'].toLocal().toString().split(' ')[0]}'),
-                                Text('Atribuído a: ${task['assignedTo']}'),
-                              ],
-                            ),
-                          ),
-                          leading: _priorityColor(task['priority']),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.deepPurple),
-                                onPressed: () => _editTaskDialog(index: index),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.redAccent),
-                                onPressed: () => _deleteTask(index),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                // === Pesquisa ===
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: TextField(
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                    decoration: InputDecoration(labelText: 'Pesquisar tarefas', prefixIcon: const Icon(Icons.search)),
+                    onChanged: _filterTasks,
                   ),
-          ),
-        ],
-      ),
+                ),
+                // === Lista de tarefas ===
+                Expanded(
+                  child: _filteredTasks.isEmpty
+                      ? const Center(child: Text('Nenhuma tarefa encontrada'))
+                      : RefreshIndicator(
+                          onRefresh: _fetchTasks,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            itemCount: _filteredTasks.length,
+                            itemBuilder: (context, index) {
+                              final task = _filteredTasks[index];
+                              return Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(12),
+                                  title: Text(task['title'], style: GoogleFonts.montserrat(fontSize: 18, fontWeight: FontWeight.w600)),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Prazo: ${DateTime.parse(task['deadline']).toLocal().toString().split(' ')[0]}'),
+                                        Text('Atribuído a: ${task['assignedTo']}'),
+                                      ],
+                                    ),
+                                  ),
+                                  leading: _priorityColor(task['priority']),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(icon: const Icon(Icons.edit, color: Colors.deepPurple), onPressed: () => _editTaskDialog(index: index)),
+                                      IconButton(icon: const Icon(Icons.delete, color: Colors.redAccent), onPressed: () => _deleteTask(index)),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _editTaskDialog(),
         backgroundColor: const Color(0xFF673AB7),
