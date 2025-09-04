@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -51,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     });
 
     final result = await ApiService.login(
-      _emailController.text.trim(), // envia o email correto
+      _emailController.text.trim(),
       _senhaController.text.trim(),
     );
 
@@ -68,7 +69,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         _erro = result['error'];
       });
     } else {
-      // Login bem-sucedido
+      // Login bem-sucedido, salvar token e idUsuario
+final prefs = await SharedPreferences.getInstance();
+if (result['token'] != null) {
+  await prefs.setString('token', result['token']);
+}
+// Corrigido aqui
+if (result['usuario'] != null && result['usuario']['id'] != null) {
+  await prefs.setInt('userId', result['usuario']['id']);
+}
+
       Navigator.pushReplacementNamed(context, '/dashboard');
     }
   }

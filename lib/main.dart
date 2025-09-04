@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart'; // 🔹 importante para pt_BR
 import 'package:tasknavigation/screens/esqueci_senha_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
@@ -12,7 +13,9 @@ import 'screens/criar_conta_screen.dart';
 import 'screens/validarcodigo_screen.dart';
 import 'screens/redefinirsenha_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('pt_BR', null); // 🔹 inicializa pt_BR
   runApp(const TaskNavigationApp());
 }
 
@@ -42,6 +45,7 @@ class TaskNavigationApp extends StatelessWidget {
             useMaterial3: true,
           ),
           themeMode: currentMode,
+          locale: const Locale('pt', 'BR'), // 🔹 define idioma do app
           initialRoute: '/',
           routes: {
             '/': (context) => const HomeScreen(),

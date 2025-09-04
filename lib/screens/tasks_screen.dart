@@ -19,32 +19,43 @@ class _TasksScreenState extends State<TasksScreen> {
   late String _editTitle;
   late DateTime _editDeadline;
   late String _editPriority;
-  late String _editAssignedTo;
 
+  int? _userId;
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchTasks();
+    _loadUserAndTasks();
   }
 
-  Future<String?> _getUserEmail() async {
+  Future<void> _loadUserAndTasks() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('deileluna11@gmail.com');
-  }
+    final id = prefs.getInt('userId');
 
-  Future<void> _fetchTasks() async {
-    setState(() => _loading = true);
-    String? email = await _getUserEmail();
-    if (email == null) {
-      setState(() => _loading = false);
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuário não encontrado. Faça login novamente.')),
+      );
+      Navigator.pushReplacementNamed(context, '/login');
       return;
     }
 
-    final tasks = await ApiService.getTasks(email);
+    _userId = id;
+
+    setState(() => _loading = true);
+    final tasks = await ApiService.getTasks();
+
+    if (tasks == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sessão expirada. Faça login novamente.')),
+      );
+      Navigator.pushReplacementNamed(context, '/login');
+      return;
+    }
+
     setState(() {
-      _tasks = tasks ?? [];
+      _tasks = tasks;
       _filteredTasks = List.from(_tasks);
       _loading = false;
     });
@@ -54,7 +65,7 @@ class _TasksScreenState extends State<TasksScreen> {
     setState(() {
       _searchQuery = query;
       _filteredTasks = _tasks.where((task) {
-        final titleLower = task['title'].toLowerCase();
+        final titleLower = task['titulo'].toString().toLowerCase();
         final searchLower = query.toLowerCase();
         return titleLower.contains(searchLower);
       }).toList();
@@ -63,10 +74,9 @@ class _TasksScreenState extends State<TasksScreen> {
 
   void _deleteTask(int index) async {
     final taskToRemove = _filteredTasks[index];
-
-    // Chamar API para deletar tarefa (precisa implementar no backend)
-    // await ApiService.deleteTask(taskToRemove['id']);
-
+    if (taskToRemove['idTarefa'] != null) {
+      await ApiService.deleteTask(taskToRemove['idTarefa']);
+    }
     setState(() {
       _tasks.remove(taskToRemove);
       _filteredTasks.removeAt(index);
@@ -76,18 +86,23 @@ class _TasksScreenState extends State<TasksScreen> {
   Future<void> _editTaskDialog({int? index}) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    Map<String, dynamic>? task;
+    if (_userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuário não encontrado. Faça login novamente.')),
+      );
+      Navigator.pushReplacementNamed(context, '/login');
+      return;
+    }
+
     if (index != null) {
-      task = _filteredTasks[index];
-      _editTitle = task['title'];
-      _editDeadline = DateTime.parse(task['deadline']);
-      _editPriority = task['priority'];
-      _editAssignedTo = task['assignedTo'];
+      final task = _filteredTasks[index];
+      _editTitle = task['titulo'];
+      _editDeadline = DateTime.parse(task['prazo']);
+      _editPriority = task['prioridade'];
     } else {
       _editTitle = '';
       _editDeadline = DateTime.now().add(const Duration(days: 1));
       _editPriority = 'Média';
-      _editAssignedTo = '';
     }
 
     await showDialog(
@@ -100,66 +115,48 @@ class _TasksScreenState extends State<TasksScreen> {
             builder: (context, setStateDialog) {
               return Form(
                 key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // === Título ===
-                      TextFormField(
-                        initialValue: _editTitle,
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                        decoration: InputDecoration(labelText: 'Título'),
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'Digite o título' : null,
-                        onChanged: (value) => _editTitle = value,
-                      ),
-                      const SizedBox(height: 12),
-                      // === Prazo ===
-                      Row(
-                        children: [
-                          Expanded(child: Text('Prazo: ${_editDeadline.toLocal().toString().split(' ')[0]}')),
-                          TextButton(
-                            onPressed: () async {
-                              DateTime? picked = await showDatePicker(
-                                context: context,
-                                initialDate: _editDeadline,
-                                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                                lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-                              );
-                              if (picked != null) {
-                                setStateDialog(() => _editDeadline = picked);
-                              }
-                            },
-                            child: const Text('Selecionar', style: TextStyle(color: Color(0xFF8E24AA))),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // === Prioridade ===
-                      DropdownButtonFormField<String>(
-                        value: _editPriority,
-                        items: const [
-                          DropdownMenuItem(value: 'Alta', child: Text('Alta')),
-                          DropdownMenuItem(value: 'Média', child: Text('Média')),
-                          DropdownMenuItem(value: 'Baixa', child: Text('Baixa')),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) setStateDialog(() => _editPriority = value);
-                        },
-                        decoration: const InputDecoration(labelText: 'Prioridade'),
-                      ),
-                      const SizedBox(height: 12),
-                      // === Responsável ===
-                      TextFormField(
-                        initialValue: _editAssignedTo,
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                        decoration: const InputDecoration(labelText: 'Atribuído a'),
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'Digite o responsável' : null,
-                        onChanged: (value) => _editAssignedTo = value,
-                      ),
-                    ],
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      initialValue: _editTitle,
+                      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                      decoration: const InputDecoration(labelText: 'Título'),
+                      validator: (value) => value == null || value.isEmpty ? 'Digite o título' : null,
+                      onChanged: (value) => _editTitle = value,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(child: Text('Prazo: ${_editDeadline.toLocal().toString().split(' ')[0]}')),
+                        TextButton(
+                          onPressed: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: _editDeadline,
+                              firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                              lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+                            );
+                            if (picked != null) setStateDialog(() => _editDeadline = picked);
+                          },
+                          child: const Text('Selecionar', style: TextStyle(color: Color(0xFF8E24AA))),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _editPriority,
+                      items: const [
+                        DropdownMenuItem(value: 'Alta', child: Text('Alta')),
+                        DropdownMenuItem(value: 'Média', child: Text('Média')),
+                        DropdownMenuItem(value: 'Baixa', child: Text('Baixa')),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) setStateDialog(() => _editPriority = value);
+                      },
+                      decoration: const InputDecoration(labelText: 'Prioridade'),
+                    ),
+                  ],
                 ),
               );
             },
@@ -168,27 +165,19 @@ class _TasksScreenState extends State<TasksScreen> {
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8E24AA)),
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  setState(() {
-                    if (index == null) {
-                      _tasks.add({
-                        'title': _editTitle,
-                        'deadline': _editDeadline.toIso8601String(),
-                        'priority': _editPriority,
-                        'assignedTo': _editAssignedTo,
-                      });
-                    } else {
-                      int taskIndex = _tasks.indexOf(task!);
-                      _tasks[taskIndex] = {
-                        'title': _editTitle,
-                        'deadline': _editDeadline.toIso8601String(),
-                        'priority': _editPriority,
-                        'assignedTo': _editAssignedTo,
-                      };
-                    }
-                    _filterTasks(_searchQuery);
-                  });
+                  final tarefaData = {
+                    'titulo': _editTitle,
+                    'descricao': '',
+                    'prazo': _editDeadline.toIso8601String().split('T')[0],
+                    'status': 'Pendente',
+                    'prioridade': _editPriority,
+                    'usuario': {'idUsuario': _userId},
+                  };
+
+                  await ApiService.createTask(tarefaData);
+                  await _loadUserAndTasks();
                   Navigator.pop(context);
                 }
               },
@@ -228,21 +217,22 @@ class _TasksScreenState extends State<TasksScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // === Pesquisa ===
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: TextField(
                     style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                    decoration: InputDecoration(labelText: 'Pesquisar tarefas', prefixIcon: const Icon(Icons.search)),
+                    decoration: const InputDecoration(
+                      labelText: 'Pesquisar tarefas',
+                      prefixIcon: Icon(Icons.search),
+                    ),
                     onChanged: _filterTasks,
                   ),
                 ),
-                // === Lista de tarefas ===
                 Expanded(
                   child: _filteredTasks.isEmpty
                       ? const Center(child: Text('Nenhuma tarefa encontrada'))
                       : RefreshIndicator(
-                          onRefresh: _fetchTasks,
+                          onRefresh: _loadUserAndTasks,
                           child: ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             itemCount: _filteredTasks.length,
@@ -254,18 +244,18 @@ class _TasksScreenState extends State<TasksScreen> {
                                 margin: const EdgeInsets.symmetric(vertical: 8),
                                 child: ListTile(
                                   contentPadding: const EdgeInsets.all(12),
-                                  title: Text(task['title'], style: GoogleFonts.montserrat(fontSize: 18, fontWeight: FontWeight.w600)),
+                                  title: Text(task['titulo'], style: GoogleFonts.montserrat(fontSize: 18, fontWeight: FontWeight.w600)),
                                   subtitle: Padding(
                                     padding: const EdgeInsets.only(top: 4),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('Prazo: ${DateTime.parse(task['deadline']).toLocal().toString().split(' ')[0]}'),
-                                        Text('Atribuído a: ${task['assignedTo']}'),
+                                        Text('Prazo: ${task['prazo']}'),
+                                        Text('Atribuído a: ${task['usuario']?['nome'] ?? ''}'),
                                       ],
                                     ),
                                   ),
-                                  leading: _priorityColor(task['priority']),
+                                  leading: _priorityColor(task['prioridade']),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
