@@ -6,17 +6,17 @@ publish_to: 'none' # Remove se for publicar
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
-
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.18.1
-
-  shared_preferences: ^2.1.0
+  flutter_localizations:
+    sdk: flutter
+  intl: 0.20.2
+  shared_preferences: ^2.2.0
   cupertino_icons: ^1.0.5
   google_fonts: ^5.0.0
   animated_text_kit: ^4.2.2
-  image_picker: ^1.1.2
+  image_picker: ^0.8.7+5
 
 dev_dependencies:
   flutter_test:
@@ -26,4 +26,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/logo_moderna.png
+    - assets/

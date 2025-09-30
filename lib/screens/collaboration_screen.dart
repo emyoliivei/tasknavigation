@@ -41,19 +41,7 @@ class CollaborationScreen extends StatelessWidget {
     return Scaffold(
       // ignore: deprecated_member_use
       backgroundColor: theme.colorScheme.background,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF8E24AA),
-        title: Text(
-          'Colaboração Institucional',
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
+   
       body: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         itemCount: departments.length,

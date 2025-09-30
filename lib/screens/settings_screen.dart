@@ -40,29 +40,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final backgroundColor = isDark ? const Color.fromARGB(255, 34, 34, 34) : Colors.white;
+    final backgroundColor =
+        isDark ? const Color.fromARGB(255, 34, 34, 34) : Colors.white;
 
-    final borderColor = isDark ? const Color(0xFF8E24AA) : const Color(0xFF8E24AA);
+    final borderColor = const Color(0xFF8E24AA);
 
     final textColor = isDark ? Colors.white : Colors.black87;
-    final secondaryTextColor = isDark ? const Color.fromARGB(255, 0, 0, 0) : const Color.fromARGB(255, 19, 17, 17);
+    final secondaryTextColor =
+        isDark ? const Color.fromARGB(255, 0, 0, 0) : const Color.fromARGB(255, 19, 17, 17);
     final switchActiveColor = Colors.deepPurpleAccent;
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF8E24AA),
-        title: Text(
-          'Configurações',
-          style: GoogleFonts.montserrat(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        elevation: 0,
-        automaticallyImplyLeading: false,  // <- aqui remove a seta de voltar
-      ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
@@ -73,9 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 boxShadow: [
                   BoxShadow(
                     color: isDark
-                        // ignore: deprecated_member_use
                         ? Colors.deepPurpleAccent.withOpacity(0.6)
-                        // ignore: deprecated_member_use
                         : const Color.fromARGB(255, 85, 78, 87).withOpacity(0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
@@ -84,8 +72,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               child: CircleAvatar(
                 radius: 64,
-                backgroundColor:
-                    isDark ? Colors.deepPurple.shade700 : const Color.fromARGB(255, 46, 46, 46),
+                backgroundColor: isDark
+                    ? Colors.deepPurple.shade700
+                    : const Color.fromARGB(255, 46, 46, 46),
                 backgroundImage: _profileImage != null
                     ? FileImage(_profileImage!) as ImageProvider
                     : const AssetImage('assets/default_profile.png'),
@@ -101,10 +90,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 elevation: 6,
                 shadowColor: const Color.fromARGB(255, 184, 184, 184),
-                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                textStyle: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
             const SizedBox(height: 36),
@@ -123,7 +114,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide(color: switchActiveColor, width: 3),
                 ),
-                fillColor: isDark ? const Color.fromARGB(255, 49, 49, 49) : Colors.deepPurple.shade50,
+                fillColor: isDark
+                    ? const Color.fromARGB(255, 49, 49, 49)
+                    : Colors.deepPurple.shade50,
                 filled: true,
               ),
               onChanged: (value) {
@@ -136,7 +129,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SwitchListTile(
               title: Text(
                 'Tema Escuro',
-                style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: textColor, fontWeight: FontWeight.bold),
               ),
               value: _isDarkTheme,
               onChanged: (bool value) {
@@ -147,13 +141,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 });
               },
               secondary: Icon(Icons.dark_mode, color: borderColor),
-              // ignore: deprecated_member_use
-              activeColor: switchActiveColor,
+              thumbColor: WidgetStateProperty.all(switchActiveColor),
+              trackColor:
+                  WidgetStateProperty.all(switchActiveColor.withOpacity(0.4)),
             ),
             SwitchListTile(
               title: Text(
                 'Notificações',
-                style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: textColor, fontWeight: FontWeight.bold),
               ),
               value: _notificationsEnabled,
               onChanged: (bool value) {
@@ -162,7 +158,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 });
               },
               secondary: Icon(Icons.notifications, color: borderColor),
-              activeColor: switchActiveColor,
+              thumbColor: WidgetStateProperty.all(switchActiveColor),
+              trackColor:
+                  WidgetStateProperty.all(switchActiveColor.withOpacity(0.4)),
             ),
           ],
         ),

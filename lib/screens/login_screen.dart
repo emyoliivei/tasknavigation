@@ -69,15 +69,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         _erro = result['error'];
       });
     } else {
-      // Login bem-sucedido, salvar token e idUsuario
-final prefs = await SharedPreferences.getInstance();
-if (result['token'] != null) {
-  await prefs.setString('token', result['token']);
-}
-// Corrigido aqui
-if (result['usuario'] != null && result['usuario']['id'] != null) {
-  await prefs.setInt('userId', result['usuario']['id']);
-}
+      final prefs = await SharedPreferences.getInstance();
+      if (result['token'] != null) {
+        await prefs.setString('token', result['token']);
+      }
+      if (result['usuario'] != null && result['usuario']['id'] != null) {
+        await prefs.setInt('userId', result['usuario']['id']);
+      }
 
       Navigator.pushReplacementNamed(context, '/dashboard');
     }
@@ -137,7 +135,7 @@ if (result['usuario'] != null && result['usuario']['id'] != null) {
                         ),
                         const SizedBox(height: 30),
 
-                        // Campo Email
+                        // Email
                         TextFormField(
                           controller: _emailController,
                           decoration: _buildInputDecoration('Email', Icons.email_outlined)
@@ -147,7 +145,7 @@ if (result['usuario'] != null && result['usuario']['id'] != null) {
                         ),
                         const SizedBox(height: 16),
 
-                        // Campo Senha
+                        // Senha
                         TextFormField(
                           controller: _senhaController,
                           obscureText: true,

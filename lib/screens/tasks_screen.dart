@@ -1,7 +1,7 @@
+// tasks_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -11,269 +11,251 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  List<Map<String, dynamic>> _tasks = [];
-  List<Map<String, dynamic>> _filteredTasks = [];
-  bool _loading = true;
+  List<Map<String, dynamic>> tasks = [];
+  List<Map<String, dynamic>> projects = [];
+  bool isLoading = true;
 
-  final _formKey = GlobalKey<FormState>();
-  late String _editTitle;
-  late DateTime _editDeadline;
-  late String _editPriority;
-
-  int? _userId;
-  String _searchQuery = '';
+  final TextEditingController _tituloController = TextEditingController();
+  final TextEditingController _descricaoController = TextEditingController();
+  Map<String, dynamic>? _selectedProject;
 
   @override
   void initState() {
     super.initState();
-    _loadUserAndTasks();
+    _loadTasks();
+    _loadProjects();
   }
 
-  Future<void> _loadUserAndTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final id = prefs.getInt('userId');
-
-    if (id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuário não encontrado. Faça login novamente.')),
-      );
-      Navigator.pushReplacementNamed(context, '/login');
-      return;
-    }
-
-    _userId = id;
-
-    setState(() => _loading = true);
-    final tasks = await ApiService.getTasks();
-
-    if (tasks == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sessão expirada. Faça login novamente.')),
-      );
-      Navigator.pushReplacementNamed(context, '/login');
-      return;
-    }
-
+  // 🔹 CARREGAR TAREFAS
+  Future<void> _loadTasks() async {
     setState(() {
-      _tasks = tasks;
-      _filteredTasks = List.from(_tasks);
-      _loading = false;
+      isLoading = true;
     });
+    try {
+      final data = await ApiService.getData("/tarefas");
+      setState(() {
+        tasks = List<Map<String, dynamic>>.from(data);
+      });
+    } catch (e) {
+      debugPrint("Erro ao carregar tarefas: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
-  void _filterTasks(String query) {
-    setState(() {
-      _searchQuery = query;
-      _filteredTasks = _tasks.where((task) {
-        final titleLower = task['titulo'].toString().toLowerCase();
-        final searchLower = query.toLowerCase();
-        return titleLower.contains(searchLower);
-      }).toList();
-    });
+  // 🔹 CARREGAR PROJETOS
+  Future<void> _loadProjects() async {
+    try {
+      final data = await ApiService.getData("/projetos");
+      setState(() {
+        projects = List<Map<String, dynamic>>.from(data);
+        if (projects.isNotEmpty) _selectedProject = projects[0];
+      });
+    } catch (e) {
+      debugPrint("Erro ao carregar projetos: $e");
+    }
   }
 
-  void _deleteTask(int index) async {
-    final taskToRemove = _filteredTasks[index];
-    if (taskToRemove['idTarefa'] != null) {
-      await ApiService.deleteTask(taskToRemove['idTarefa']);
+  // 🔹 ADICIONAR TAREFA
+  Future<void> _addTask() async {
+    if (_tituloController.text.isEmpty || _selectedProject == null) return;
+
+    final newTask = {
+      "titulo": _tituloController.text,
+      "descricao": _descricaoController.text,
+      "idProjeto": _selectedProject!["idProjeto"], // só o ID
+      "status": "Pendente",
+      "prioridade": "Média",
+    };
+
+    try {
+      await ApiService.postData("/tarefas", newTask);
+      _tituloController.clear();
+      _descricaoController.clear();
+      _loadTasks();
+    } catch (e) {
+      debugPrint("Erro ao criar tarefa: $e");
     }
-    setState(() {
-      _tasks.remove(taskToRemove);
-      _filteredTasks.removeAt(index);
-    });
   }
 
-  Future<void> _editTaskDialog({int? index}) async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  // 🔹 ATUALIZAR TAREFA
+  Future<void> _updateTask(int id, Map<String, dynamic> updatedTask) async {
+    final taskToSend = {
+      "titulo": updatedTask["titulo"],
+      "descricao": updatedTask["descricao"],
+      "status": updatedTask["status"] ?? "Pendente",
+      "prioridade": updatedTask["prioridade"] ?? "Média",
+      "idProjeto": updatedTask["idProjeto"], // só o ID
+    };
 
-    if (_userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuário não encontrado. Faça login novamente.')),
-      );
-      Navigator.pushReplacementNamed(context, '/login');
-      return;
+    try {
+      await ApiService.putData("/tarefas/$id", taskToSend);
+      _loadTasks();
+    } catch (e) {
+      debugPrint("Erro ao atualizar tarefa: $e");
     }
+  }
 
-    if (index != null) {
-      final task = _filteredTasks[index];
-      _editTitle = task['titulo'];
-      _editDeadline = DateTime.parse(task['prazo']);
-      _editPriority = task['prioridade'];
-    } else {
-      _editTitle = '';
-      _editDeadline = DateTime.now().add(const Duration(days: 1));
-      _editPriority = 'Média';
+  // 🔹 DELETAR TAREFA
+  Future<void> _deleteTask(int id) async {
+    try {
+      await ApiService.deleteData("/tarefas/$id");
+      _loadTasks();
+    } catch (e) {
+      debugPrint("Erro ao deletar tarefa: $e");
     }
+  }
 
-    await showDialog(
+  // 🔹 DIALOGS
+  void _showAddTaskDialog() {
+    _tituloController.clear();
+    _descricaoController.clear();
+    _selectedProject = projects.isNotEmpty ? projects[0] : null;
+
+    showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: isDark ? Colors.grey[900] : Colors.white,
-          title: Text(index == null ? 'Nova Tarefa' : 'Editar Tarefa'),
-          content: StatefulBuilder(
-            builder: (context, setStateDialog) {
-              return Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      initialValue: _editTitle,
-                      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                      decoration: const InputDecoration(labelText: 'Título'),
-                      validator: (value) => value == null || value.isEmpty ? 'Digite o título' : null,
-                      onChanged: (value) => _editTitle = value,
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(child: Text('Prazo: ${_editDeadline.toLocal().toString().split(' ')[0]}')),
-                        TextButton(
-                          onPressed: () async {
-                            DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: _editDeadline,
-                              firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                              lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-                            );
-                            if (picked != null) setStateDialog(() => _editDeadline = picked);
-                          },
-                          child: const Text('Selecionar', style: TextStyle(color: Color(0xFF8E24AA))),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: _editPriority,
-                      items: const [
-                        DropdownMenuItem(value: 'Alta', child: Text('Alta')),
-                        DropdownMenuItem(value: 'Média', child: Text('Média')),
-                        DropdownMenuItem(value: 'Baixa', child: Text('Baixa')),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) setStateDialog(() => _editPriority = value);
-                      },
-                      decoration: const InputDecoration(labelText: 'Prioridade'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8E24AA)),
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  final tarefaData = {
-                    'titulo': _editTitle,
-                    'descricao': '',
-                    'prazo': _editDeadline.toIso8601String().split('T')[0],
-                    'status': 'Pendente',
-                    'prioridade': _editPriority,
-                    'usuario': {'idUsuario': _userId},
-                  };
-
-                  await ApiService.createTask(tarefaData);
-                  await _loadUserAndTasks();
-                  Navigator.pop(context);
-                }
+      builder: (context) => AlertDialog(
+        title: const Text("Nova Tarefa"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _tituloController,
+              decoration: const InputDecoration(labelText: "Título da tarefa"),
+            ),
+            TextField(
+              controller: _descricaoController,
+              decoration: const InputDecoration(labelText: "Descrição"),
+            ),
+            const SizedBox(height: 10),
+            DropdownButton<Map<String, dynamic>>(
+              isExpanded: true,
+              value: _selectedProject,
+              items: projects
+                  .map((proj) => DropdownMenuItem(
+                        value: proj,
+                        child: Text(proj["nome"] ?? "Projeto sem nome"),
+                      ))
+                  .toList(),
+              onChanged: (proj) {
+                setState(() => _selectedProject = proj);
               },
-              child: const Text('Salvar', style: TextStyle(color: Colors.white)),
             ),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
+          ElevatedButton(
+            onPressed: () {
+              _addTask();
+              Navigator.pop(context);
+            },
+            child: const Text("Adicionar"),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _priorityColor(String priority) {
-    switch (priority) {
-      case 'Alta':
-        return const Icon(Icons.flag, color: Colors.redAccent);
-      case 'Média':
-        return const Icon(Icons.flag, color: Colors.orangeAccent);
-      case 'Baixa':
-        return const Icon(Icons.flag, color: Colors.green);
-      default:
-        return const Icon(Icons.flag, color: Colors.grey);
-    }
+  void _showEditTaskDialog(Map<String, dynamic> task) {
+    _tituloController.text = task["titulo"] ?? "";
+    _descricaoController.text = task["descricao"] ?? "";
+
+    _selectedProject = projects.isNotEmpty
+        ? projects.firstWhere(
+            (proj) => proj["idProjeto"] == task["projeto"]?["idProjeto"],
+            orElse: () => projects[0],
+          )
+        : null;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Editar Tarefa"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _tituloController,
+              decoration: const InputDecoration(labelText: "Título da tarefa"),
+            ),
+            TextField(
+              controller: _descricaoController,
+              decoration: const InputDecoration(labelText: "Descrição"),
+            ),
+            const SizedBox(height: 10),
+            DropdownButton<Map<String, dynamic>>(
+              isExpanded: true,
+              value: _selectedProject,
+              items: projects
+                  .map((proj) => DropdownMenuItem(
+                        value: proj,
+                        child: Text(proj["nome"] ?? "Projeto sem nome"),
+                      ))
+                  .toList(),
+              onChanged: (proj) {
+                setState(() => _selectedProject = proj);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
+          ElevatedButton(
+            onPressed: () {
+              final updatedTask = {
+                "titulo": _tituloController.text,
+                "descricao": _descricaoController.text,
+                "idProjeto": _selectedProject?["idProjeto"], // só o ID
+                "status": task["status"] ?? "Pendente",
+                "prioridade": task["prioridade"] ?? "Média",
+              };
+              _updateTask(task["idTarefa"], updatedTask);
+              Navigator.pop(context);
+            },
+            child: const Text("Salvar"),
+          ),
+        ],
+      ),
+    );
   }
 
+  // 🔹 BUILD
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF8E24AA),
-        title: Text('Tarefas', style: GoogleFonts.montserrat(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
-      body: _loading
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: TextField(
-                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                    decoration: const InputDecoration(
-                      labelText: 'Pesquisar tarefas',
-                      prefixIcon: Icon(Icons.search),
+          : tasks.isEmpty
+              ? const Center(child: Text("Nenhuma tarefa cadastrada"))
+              : ListView.builder(
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) => Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    child: ListTile(
+                      title: Text(tasks[index]["titulo"] ?? "Sem título"),
+                      subtitle: Text(tasks[index]["descricao"] ?? "Sem descrição"),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _showEditTaskDialog(tasks[index]),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            onPressed: () => _deleteTask(tasks[index]['idTarefa']),
+                          ),
+                        ],
+                      ),
                     ),
-                    onChanged: _filterTasks,
                   ),
                 ),
-                Expanded(
-                  child: _filteredTasks.isEmpty
-                      ? const Center(child: Text('Nenhuma tarefa encontrada'))
-                      : RefreshIndicator(
-                          onRefresh: _loadUserAndTasks,
-                          child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            itemCount: _filteredTasks.length,
-                            itemBuilder: (context, index) {
-                              final task = _filteredTasks[index];
-                              return Card(
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(12),
-                                  title: Text(task['titulo'], style: GoogleFonts.montserrat(fontSize: 18, fontWeight: FontWeight.w600)),
-                                  subtitle: Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Prazo: ${task['prazo']}'),
-                                        Text('Atribuído a: ${task['usuario']?['nome'] ?? ''}'),
-                                      ],
-                                    ),
-                                  ),
-                                  leading: _priorityColor(task['prioridade']),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(icon: const Icon(Icons.edit, color: Colors.deepPurple), onPressed: () => _editTaskDialog(index: index)),
-                                      IconButton(icon: const Icon(Icons.delete, color: Colors.redAccent), onPressed: () => _deleteTask(index)),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                ),
-              ],
-            ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _editTaskDialog(),
-        backgroundColor: const Color(0xFF673AB7),
+        onPressed: _showAddTaskDialog,
+        heroTag: 'tasksFAB',
         child: const Icon(Icons.add),
       ),
     );

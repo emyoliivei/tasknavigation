@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart'; // 🔹 importante para pt_BR
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:tasknavigation/screens/collaboration_screen.dart';
+import 'package:tasknavigation/screens/criar_conta_screen.dart';
 import 'package:tasknavigation/screens/esqueci_senha_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/dashboard_screen.dart';
-import 'screens/tasks_screen.dart';
-import 'screens/projects_screen.dart';
-import 'screens/reports_screen.dart';
-import 'screens/collaboration_screen.dart';
-import 'screens/settings_screen.dart';
-import 'screens/criar_conta_screen.dart';
-import 'screens/validarcodigo_screen.dart';
-import 'screens/redefinirsenha_screen.dart';
+import 'package:tasknavigation/screens/home_screen.dart';
+import 'package:tasknavigation/screens/login_screen.dart';
+import 'package:tasknavigation/screens/projects_screen.dart';
+import 'package:tasknavigation/screens/redefinirsenha_screen.dart';
+
+import 'package:tasknavigation/screens/settings_screen.dart';
+import 'package:tasknavigation/screens/tasks_screen.dart';
+import 'package:tasknavigation/screens/validarcodigo_screen.dart';
+import 'package:tasknavigation/screens/dashboard_screen.dart';
+import 'package:tasknavigation/screens/equipe_screen.dart';
+
+// Usando prefixos para evitar conflitos de nome
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('pt_BR', null); // 🔹 inicializa pt_BR
+  await initializeDateFormatting('pt_BR', null);
   runApp(const TaskNavigationApp());
 }
 
@@ -33,28 +37,43 @@ class TaskNavigationApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Task Navigation',
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
+            primarySwatch: Colors.deepPurple,
             brightness: Brightness.light,
+            scaffoldBackgroundColor: Colors.white,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF8E24AA),
+              foregroundColor: Colors.white,
+            ),
           ),
           darkTheme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
-              brightness: Brightness.dark,
+            primarySwatch: Colors.deepPurple,
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF222222),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF8E24AA),
+              foregroundColor: Colors.white,
             ),
-            useMaterial3: true,
           ),
           themeMode: currentMode,
-          locale: const Locale('pt', 'BR'), // 🔹 define idioma do app
+          locale: const Locale('pt', 'BR'),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('pt', 'BR'),
+          ],
           initialRoute: '/',
           routes: {
             '/': (context) => const HomeScreen(),
             '/login': (context) => const LoginScreen(),
             '/dashboard': (context) => const DashboardScreen(),
+            '/equipe': (context) => const EntrarEquipeScreen(),
             '/tarefas': (context) => const TasksScreen(),
-            '/projetos': (context) => ProjectsScreen(),
-            '/relatorios': (context) => const ReportsScreen(),
-            '/colaboracao': (context) => CollaborationScreen(),
+            '/projetos': (context) => const ProjectsScreen(),
+            '/colaboracao': (context) => const CollaborationScreen(),
             '/configuracao': (context) => const SettingsScreen(),
             '/criarConta': (context) => const CriarContaScreen(),
             '/esqueciSenha': (context) => const EsqueciSenhaScreen(),
