@@ -3,7 +3,7 @@ import 'package:tasknavigation/screens/tasks_screen.dart';
 import 'package:tasknavigation/screens/projects_screen.dart';
 import 'package:tasknavigation/screens/collaboration_screen.dart';
 import 'package:tasknavigation/screens/settings_screen.dart';
-import 'package:tasknavigation/screens/equipe_screen.dart'; // ✅ Tela de Equipe
+import 'package:tasknavigation/screens/equipe_screen.dart'; // Tela de equipe
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -14,65 +14,97 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
+  final List<int> _navigationStack = [0];
 
-  final List<Widget> _pages = [
-    const EntrarEquipeScreen(), // ✅ Equipe
-    const TasksScreen(),        // ✅ Tarefas (com FAB interno)
-    const ProjectsScreen(),     // ✅ Projetos
-    const CollaborationScreen(),// ✅ Colaboração
-    const SettingsScreen(),     // ✅ Configurações
+  // ✅ Ordem das páginas corresponde exatamente às abas
+  final List<Widget> _pages = const [
+    EntrarEquipeScreen(),
+    TasksScreen(),
+    ProjectsScreen(),
+    CollaborationScreen(),
+    SettingsScreen(),
   ];
 
   final List<String> _titles = [
     "Equipe",
-    "Gestão de Tarefas",
+    "Tarefas",
     "Projetos",
     "Colaboração",
     "Configurações"
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (_selectedIndex != index) {
+      _navigationStack.add(index);
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_navigationStack.length > 1) {
+      setState(() {
+        _navigationStack.removeLast();
+        _selectedIndex = _navigationStack.last;
+      });
+      return false;
+    }
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
-        centerTitle: true,
-      ),
-      body: _pages[_selectedIndex],
-      // ✅ Não precisamos de FAB aqui, pois TasksScreen já tem o seu próprio
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Equipe',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.check_circle_outline),
-            label: 'Tarefas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.folder_open),
-            label: 'Projetos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Colaboração',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Configurações',
-          ),
-        ],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_titles[_selectedIndex]),
+          centerTitle: true,
+          leading: _navigationStack.length > 1
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    setState(() {
+                      _navigationStack.removeLast();
+                      _selectedIndex = _navigationStack.last;
+                    });
+                  },
+                )
+              : null,
+        ),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Theme.of(context).colorScheme.primary,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group),
+              label: 'Equipe',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.check_circle_outline),
+              label: 'Tarefas',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.folder_open),
+              label: 'Projetos',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people),
+              label: 'Colaboração',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Configurações',
+            ),
+          ],
+        ),
       ),
     );
   }

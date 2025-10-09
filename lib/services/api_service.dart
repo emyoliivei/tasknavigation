@@ -7,9 +7,9 @@ class ApiService {
   // Base URL: muda conforme se é web (localhost) ou mobile (IP da máquina)
  static String get baseUrl {
   // Para Web
-  if (kIsWeb) return 'http://192.168.0.10:8080';
+  if (kIsWeb) return 'http://172.19.0.91:8080';
   // Para Mobile
-  return 'http://172.19.1.156:8080';
+  return 'http://172.19.0.91:8080';
 }
 
 
@@ -186,13 +186,23 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) return jsonDecode(response.body);
     throw Exception('Erro ao buscar dados: ${response.statusCode}');
   }
-
-  static Future<dynamic> postData(String endpoint, Map<String, dynamic> data) async {
-    final url = Uri.parse('$baseUrl$endpoint');
-    final response = await http.post(url, headers: await _getHeaders(), body: jsonEncode(data));
-    if (response.statusCode >= 200 && response.statusCode < 300) return jsonDecode(response.body);
-    throw Exception('Erro ao criar: ${response.statusCode}');
+static Future<dynamic> postData(
+  String endpoint,
+  Map<String, dynamic> data, {
+  bool withAuth = true,
+}) async {
+  final url = Uri.parse('$baseUrl$endpoint');
+  final response = await http.post(
+    url,
+    headers: await _getHeaders(withAuth: withAuth),
+    body: jsonEncode(data),
+  );
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    return jsonDecode(response.body);
   }
+  throw Exception('Erro ao criar: ${response.statusCode}');
+}
+
 
   static Future<dynamic> putData(String endpoint, Map<String, dynamic> data) async {
     final url = Uri.parse('$baseUrl$endpoint');
@@ -208,4 +218,45 @@ class ApiService {
       throw Exception('Erro ao deletar: ${response.statusCode}');
     }
   }
+  // ------------------- CONFIGURAÇÃO -------------------
+  // Buscar todas as configurações e retornar a do usuário específico
+  static Future<Map<String, dynamic>?> getUserConfig(int userId) async {
+    try {
+      final url = Uri.parse('$baseUrl/configuracao');
+      final response = await http.get(url, headers: await _getHeaders());
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final List configs = jsonDecode(response.body);
+        final userConfig = configs.firstWhere(
+          (c) => c['usuario']?['id'] == userId,
+          orElse: () => null,
+        );
+        return userConfig != null ? Map<String, dynamic>.from(userConfig) : null;
+      }
+      return null;
+    } catch (e) {
+      print('Erro ao buscar configuração: $e');
+      return null;
+    }
+  }
+
+  // Criar ou atualizar configuração
+  static Future<Map<String, dynamic>> saveUserConfig(Map<String, dynamic> config) async {
+    try {
+      if (config['id'] != null) {
+        // Atualizar configuração existente
+        final url = Uri.parse('$baseUrl/configuracao/${config['id']}');
+        final response = await http.put(url, headers: await _getHeaders(), body: jsonEncode(config));
+        if (response.statusCode >= 200 && response.statusCode < 300) return jsonDecode(response.body);
+      } else {
+        // Criar nova configuração
+        final url = Uri.parse('$baseUrl/configuracao');
+        final response = await http.post(url, headers: await _getHeaders(), body: jsonEncode(config));
+        if (response.statusCode >= 200 && response.statusCode < 300) return jsonDecode(response.body);
+      }
+      throw Exception('Erro ao salvar configuração: ${config['id'] ?? "novo"}');
+    } catch (e) {
+      throw Exception('Falha ao salvar configuração: $e');
+    }
+  }
+
 }

@@ -11,11 +11,12 @@ class HomeScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromARGB(255, 76, 26, 122),
-              Color.fromARGB(255, 104, 24, 126),
+            Color(0xFF6A1B9A), // Roxo escuro
+                  Color(0xFF8E24AA), // Roxo médio
+                  Color(0xFFBA68C8), // Roxo claro
             ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: SafeArea(
@@ -50,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // Subtítulo com fonte Sans Serif clean
+                  // Subtítulo
                   Text(
                     'Seja bem-vindo(a) à Task Navigation! a plataforma ideal para gerenciar as tarefas administrativas do seu aplicativo. Com uma interface intuitiva, você pode organizar, monitorar e otimizar processos de forma eficiente.',
                     textAlign: TextAlign.center,
@@ -67,7 +68,7 @@ class HomeScreen extends StatelessWidget {
                   ElevatedButton.icon(
                     icon: const Icon(Icons.arrow_forward),
                     label: Text(
-                      'Get Started',
+                      'Começar',
                       style: GoogleFonts.openSans(
                         textStyle: const TextStyle(fontSize: 16),
                       ),

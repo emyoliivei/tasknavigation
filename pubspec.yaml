@@ -17,6 +17,7 @@ dependencies:
   google_fonts: ^5.0.0
   animated_text_kit: ^4.2.2
   image_picker: ^0.8.7+5
+  file_picker: ^6.0.0 
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +28,4 @@ flutter:
 
   assets:
     - assets/
+

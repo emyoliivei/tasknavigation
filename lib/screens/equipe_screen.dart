@@ -14,8 +14,8 @@ class _EntrarEquipeScreenState extends State<EntrarEquipeScreen> {
   final TextEditingController _codigoController = TextEditingController();
   bool isLoading = false;
 
-  Map<String, dynamic>? equipe; // Dados da equipe
-  List<dynamic> membros = [];    // Lista de membros da equipe
+  Map<String, dynamic>? equipe;
+  List<dynamic> membros = [];
 
   @override
   void initState() {
@@ -23,31 +23,26 @@ class _EntrarEquipeScreenState extends State<EntrarEquipeScreen> {
     _carregarEquipeSalva();
   }
 
-  // 🔹 Carrega equipe salva no SharedPreferences
-Future<void> _carregarEquipeSalva() async {
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getInt('userId'); // pega id salvo no login
-  if (userId == null) return;
+  Future<void> _carregarEquipeSalva() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId'); 
+    if (userId == null) return;
 
-  final equipeJson = prefs.getString('equipe_$userId');
-  if (equipeJson != null) {
-    final data = jsonDecode(equipeJson);
-    setState(() {
-      equipe = data;
-      membros = data['membros'] ?? [];
-    });
+    final equipeJson = prefs.getString('equipe_$userId');
+    if (equipeJson != null) {
+      final data = jsonDecode(equipeJson);
+      setState(() {
+        equipe = data;
+        membros = data['membros'] ?? [];
+      });
+    }
   }
-}
 
+  Future<void> _salvarEquipe(int userId, Map<String, dynamic> equipeData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('equipe_$userId', jsonEncode(equipeData));
+  }
 
-  // 🔹 Salva equipe no SharedPreferences
-Future<void> _salvarEquipe(int userId, Map<String, dynamic> equipeData) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('equipe_$userId', jsonEncode(equipeData));
-}
-
-
-  // 🔹 ENTRAR EM EQUIPE
   Future<void> _entrarEquipe() async {
     final codigo = _codigoController.text.trim();
     if (codigo.isEmpty) {
@@ -69,17 +64,18 @@ Future<void> _salvarEquipe(int userId, Map<String, dynamic> equipeData) async {
         return;
       }
 
-      final response = await ApiService.postData('/equipes/entrar', {"codigoConvite": codigo});
+      final response = await ApiService.postData(
+        '/equipes/entrar',
+        {"codigoConvite": codigo},
+      );
 
       final equipeData = response['equipe'] ?? {'nome': 'Equipe', 'descricao': 'Sem descrição'};
 
-      // Salva no estado e no SharedPreferences
       setState(() {
         equipe = equipeData;
         membros = equipeData['membros'] ?? [];
       });
       await _salvarEquipe(userId, equipeData);
-
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Você entrou na equipe com sucesso!')),
@@ -97,89 +93,106 @@ Future<void> _salvarEquipe(int userId, Map<String, dynamic> equipeData) async {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = const Color(0xFFB9A1FA); // tom de roxo claro
+    final secondaryColor = const Color(0xFFF3F4F6);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Entrar em Equipe")),
+   
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _codigoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Código da Equipe',
-                    border: OutlineInputBorder(),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            // Card de entrada de código
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _codigoController,
+                      decoration: const InputDecoration(
+                        hintText: 'Código da Equipe',
+                        border: InputBorder.none,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    ),
                     onPressed: isLoading ? null : _entrarEquipe,
                     child: isLoading
-                        ? const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                           )
-                        : const Text('Entrar na Equipe', style: TextStyle(fontSize: 16)),
+                        : const Icon(Icons.arrow_forward, color: Colors.white),
                   ),
-                ),
-                const SizedBox(height: 32),
-                if (equipe != null)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Card(
-                        elevation: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                equipe!['nome'] ?? 'Equipe sem nome',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                equipe!['descricao'] ?? 'Sem descrição',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Membros da Equipe:',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      if (membros.isEmpty)
-                        const Text('Nenhum membro ainda')
-                      else
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: membros.length,
-                          itemBuilder: (context, index) {
-                            final membro = membros[index];
-                            return Card(
-                              child: ListTile(
-                                leading: const Icon(Icons.person),
-                                title: Text(membro['nome'] ?? 'Sem nome'),
-                                subtitle: Text(membro['email'] ?? ''),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
+            const SizedBox(height: 30),
+            // Card da equipe
+            if (equipe != null)
+              Expanded(
+                child: ListView(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            equipe!['nome'] ?? '',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            equipe!['descricao'] ?? 'Sem descrição',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Membros da Equipe:',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    if (membros.isEmpty)
+                      const Text('Nenhum membro ainda')
+                    else
+                      ...membros.map((membro) => Container(
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              color: primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ListTile(
+                              leading: const Icon(Icons.person, color: Colors.black54),
+                              title: Text(membro['nome'] ?? 'Sem nome'),
+                              subtitle: Text(membro['email'] ?? ''),
+                            ),
+                          )),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );

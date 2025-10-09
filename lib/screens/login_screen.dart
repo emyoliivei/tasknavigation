@@ -88,15 +88,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
+          // 🔹 Mesmo gradiente da tela Criar Conta
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
-                  Color.fromARGB(255, 76, 26, 122),
-                  Color.fromARGB(255, 185, 161, 250),
+                  Color(0xFF6A1B9A), // Roxo escuro
+                  Color(0xFF8E24AA), // Roxo médio
+                  Color(0xFFBA68C8), // Roxo claro
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
             ),
           ),
@@ -108,11 +110,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white.withAlpha((0.95 * 255).round()),
+                    color: Colors.white.withOpacity(0.95), // card branco translúcido
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha((0.15 * 255).round()),
+                        color: Colors.black.withOpacity(0.15),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),

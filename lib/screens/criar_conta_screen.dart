@@ -1,74 +1,86 @@
-  import 'package:flutter/material.dart';
-  import 'package:google_fonts/google_fonts.dart';
-  import '../services/api_service.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../services/api_service.dart';
 
-  class CriarContaScreen extends StatefulWidget {
-    const CriarContaScreen({super.key});
+class CriarContaScreen extends StatefulWidget {
+  const CriarContaScreen({super.key});
 
-    @override
-    State<CriarContaScreen> createState() => _CriarContaScreenState();
-  }
+  @override
+  State<CriarContaScreen> createState() => _CriarContaScreenState();
+}
 
-  class _CriarContaScreenState extends State<CriarContaScreen> {
-    final _formKey = GlobalKey<FormState>();
-    final TextEditingController _nomeController = TextEditingController();
-    final TextEditingController _emailController = TextEditingController();
-    final TextEditingController _usuarioController = TextEditingController();
-    final TextEditingController _senhaController = TextEditingController();
-    final TextEditingController _confirmSenhaController = TextEditingController();
+class _CriarContaScreenState extends State<CriarContaScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usuarioController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+  final TextEditingController _confirmSenhaController = TextEditingController();
 
-    void _criarConta() async {
-      if (!_formKey.currentState!.validate()) return;
+  void _criarConta() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      if (_senhaController.text != _confirmSenhaController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('As senhas não conferem')),
-        );
-        return;
-      }
-
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const Center(child: CircularProgressIndicator()),
+    if (_senhaController.text != _confirmSenhaController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('As senhas não conferem')),
       );
-final res = await ApiService.register(
-  _nomeController.text,
-  _emailController.text,
-  _senhaController.text,
-);
-
-
-      Navigator.pop(context);
-
-      if (res is Map && res.containsKey('error')) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res['error'])),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Conta criada com sucesso!')),
-        );
-        Navigator.pushReplacementNamed(context, '/login');
-      }
+      return;
     }
 
-    @override
-    Widget build(BuildContext context) {
-      const primaryColor = Color(0xFF8E24AA);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
 
-      return Scaffold(
-        body: Center(
+    final res = await ApiService.register(
+      _nomeController.text,
+      _emailController.text,
+      _senhaController.text,
+    );
+
+    Navigator.pop(context);
+
+    if (res is Map && res.containsKey('error')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res['error'])),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Conta criada com sucesso!')),
+      );
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF8E24AA);
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter, // gradiente de cima para baixo
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF6A1B9A), // Roxo mais escuro
+              Color(0xFF8E24AA), // Roxo principal
+              Color(0xFFBA68C8), // Roxo mais claro
+            ],
+          ),
+        ),
+        child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: Colors.white.withAlpha((0.95 * 255).round()),
+                color: Colors.white.withOpacity(0.95), // card branco translúcido
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha((0.15 * 255).round()),
+                    color: Colors.black.withOpacity(0.15),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -164,7 +176,7 @@ final res = await ApiService.register(
                     ),
                     const SizedBox(height: 16),
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
                       child: Text(
                         'Voltar ao Login',
                         style: GoogleFonts.montserrat(
@@ -179,6 +191,7 @@ final res = await ApiService.register(
             ),
           ),
         ),
-      );
-    }
+      ),
+    );
   }
+}
