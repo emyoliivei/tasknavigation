@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../services/api_service.dart';
 
 class ProjectsScreen extends StatefulWidget {
@@ -16,19 +18,12 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _prazoController = TextEditingController();
 
-  String? _status;
-  String? _prioridade;
-
-  final List<String> _statusOptions = ["Pendente", "Em andamento", "Concluído"];
-  final List<String> _prioridadeOptions = ["Baixa", "Média", "Alta"];
-
   @override
   void initState() {
     super.initState();
     _loadProjects();
   }
 
-  // 🔹 CARREGAR PROJETOS
   Future<void> _loadProjects() async {
     setState(() => isLoading = true);
     try {
@@ -43,15 +38,12 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     }
   }
 
-  // 🔹 ADICIONAR PROJETO
   Future<void> _addProject() async {
     if (_nomeController.text.isEmpty) return;
 
     final newProject = {
       "nome": _nomeController.text,
       "descricao": _descricaoController.text,
-      "status": _status,
-      "prioridade": _prioridade,
       "prazo": _prazoController.text,
     };
 
@@ -64,7 +56,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     }
   }
 
-  // 🔹 ATUALIZAR PROJETO
   Future<void> _updateProject(int id, Map<String, dynamic> updatedProject) async {
     try {
       await ApiService.putData("/projetos/$id", updatedProject);
@@ -74,7 +65,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     }
   }
 
-  // 🔹 DELETAR PROJETO
   Future<void> _deleteProject(int id) async {
     try {
       await ApiService.deleteData("/projetos/$id");
@@ -84,175 +74,232 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     }
   }
 
-  // 🔹 LIMPAR FORM
   void _clearForm() {
     _nomeController.clear();
     _descricaoController.clear();
     _prazoController.clear();
-    _status = null;
-    _prioridade = null;
   }
 
-  // 🔹 DIALOG - CRIAR
-  void _showAddProjectDialog() {
-    _clearForm();
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime initialDate = DateTime.tryParse(_prazoController.text) ?? DateTime.now();
 
-    showDialog(
+    showCupertinoModalPopup(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Novo Projeto"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nomeController,
-                decoration: const InputDecoration(labelText: "Título"),
-              ),
-              TextField(
-                controller: _descricaoController,
-                decoration: const InputDecoration(labelText: "Descrição"),
-              ),
-              DropdownButtonFormField<String>(
-                value: _status,
-                items: _statusOptions
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                    .toList(),
-                onChanged: (v) => setState(() => _status = v),
-                decoration: const InputDecoration(labelText: "Status"),
-              ),
-              DropdownButtonFormField<String>(
-                value: _prioridade,
-                items: _prioridadeOptions
-                    .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                    .toList(),
-                onChanged: (v) => setState(() => _prioridade = v),
-                decoration: const InputDecoration(labelText: "Prioridade"),
-              ),
-              TextField(
-                controller: _prazoController,
-                decoration: const InputDecoration(labelText: "Prazo (YYYY-MM-DD)"),
-              ),
-            ],
+      builder: (_) => CupertinoPopupSurface(
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 260,
+            child: Column(
+              children: [
+                Expanded(
+                  child: CupertinoDatePicker(
+                    initialDateTime: initialDate,
+                    mode: CupertinoDatePickerMode.date,
+                    onDateTimeChanged: (DateTime newDate) {
+                      _prazoController.text = newDate.toIso8601String().split('T')[0];
+                    },
+                  ),
+                ),
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: const Text("OK", style: TextStyle(color: Color(0xFFAB47BC))),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
-          ElevatedButton(
-            onPressed: () {
-              _addProject();
-              Navigator.pop(context);
-            },
-            child: const Text("Salvar"),
-          ),
-        ],
       ),
     );
   }
 
-  // 🔹 DIALOG - EDITAR
+  void _showAddProjectDialog() {
+    _clearForm();
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => _buildProjectDialog(title: "Novo Projeto", onSave: _addProject),
+    );
+  }
+
   void _showEditProjectDialog(Map<String, dynamic> project) {
     _nomeController.text = project["nome"] ?? "";
     _descricaoController.text = project["descricao"] ?? "";
-    _status = project["status"];
-    _prioridade = project["prioridade"];
     _prazoController.text = project["prazo"] ?? "";
 
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Editar Projeto"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nomeController,
-                decoration: const InputDecoration(labelText: "Título"),
-              ),
-              TextField(
-                controller: _descricaoController,
-                decoration: const InputDecoration(labelText: "Descrição"),
-              ),
-              DropdownButtonFormField<String>(
-                value: _status,
-                items: _statusOptions
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                    .toList(),
-                onChanged: (v) => setState(() => _status = v),
-                decoration: const InputDecoration(labelText: "Status"),
-              ),
-              DropdownButtonFormField<String>(
-                value: _prioridade,
-                items: _prioridadeOptions
-                    .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                    .toList(),
-                onChanged: (v) => setState(() => _prioridade = v),
-                decoration: const InputDecoration(labelText: "Prioridade"),
-              ),
-              TextField(
-                controller: _prazoController,
-                decoration: const InputDecoration(labelText: "Prazo (YYYY-MM-DD)"),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
-          ElevatedButton(
-            onPressed: () {
-              final updatedProject = {
-                "nome": _nomeController.text,
-                "descricao": _descricaoController.text,
-                "status": _status,
-                "prioridade": _prioridade,
-                "prazo": _prazoController.text,
-              };
-              _updateProject(project["idProjeto"], updatedProject);
-              Navigator.pop(context);
-            },
-            child: const Text("Salvar"),
-          ),
-        ],
+      builder: (context) => _buildProjectDialog(
+        title: "Editar Projeto",
+        onSave: () {
+          final updatedProject = {
+            "nome": _nomeController.text,
+            "descricao": _descricaoController.text,
+            "prazo": _prazoController.text,
+          };
+          _updateProject(project["idProjeto"], updatedProject);
+        },
       ),
     );
   }
 
-  // 🔹 BUILD
+  Widget _buildProjectDialog({required String title, required VoidCallback onSave}) {
+    final isDark = TaskNavigationApp.themeNotifier.value == ThemeMode.dark;
+    final cardColor = isDark ? CupertinoColors.darkBackgroundGray : CupertinoColors.white;
+    final textColor = isDark ? CupertinoColors.white : CupertinoColors.black;
+
+    return CupertinoAlertDialog(
+      title: Text(title, style: TextStyle(color: textColor)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          CupertinoTextField(
+            controller: _nomeController,
+            placeholder: "Título",
+            style: TextStyle(color: textColor),
+            prefix: Padding(
+              padding: const EdgeInsets.only(left: 6.0),
+              child: Icon(CupertinoIcons.textformat, color: const Color(0xFFAB47BC)),
+            ),
+            decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+          ),
+          const SizedBox(height: 10),
+          CupertinoTextField(
+            controller: _descricaoController,
+            placeholder: "Descrição",
+            style: TextStyle(color: textColor),
+            maxLines: 2,
+            prefix: Padding(
+              padding: const EdgeInsets.only(left: 6.0),
+              child: Icon(CupertinoIcons.doc_text, color: const Color(0xFFAB47BC)),
+            ),
+            decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+          ),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () => _selectDate(context),
+            child: AbsorbPointer(
+              child: CupertinoTextField(
+                controller: _prazoController,
+                placeholder: "Data do projeto",
+                style: TextStyle(color: textColor),
+                prefix: Padding(
+                  padding: const EdgeInsets.only(left: 6.0),
+                  child: Icon(CupertinoIcons.calendar, color: const Color(0xFFAB47BC)),
+                ),
+                decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        CupertinoDialogAction(child: const Text("Cancelar"), onPressed: () => Navigator.pop(context)),
+        CupertinoDialogAction(isDefaultAction: true, child: const Text("Salvar"), onPressed: () {
+          onSave();
+          Navigator.pop(context);
+        }),
+      ],
+    );
+  }
+
+  Widget _buildProjectTile(Map<String, dynamic> project) {
+    final prazo = project["prazo"] ?? "";
+    final descricao = project["descricao"] ?? "";
+    final isDark = TaskNavigationApp.themeNotifier.value == ThemeMode.dark;
+    final cardColor = isDark ? CupertinoColors.darkBackgroundGray : CupertinoColors.white;
+    final textColor = isDark ? CupertinoColors.white : CupertinoColors.black;
+    final subtitleColor = isDark ? CupertinoColors.systemGrey : CupertinoColors.systemGrey2;
+
+    return Container(
+      decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: ListTile(
+        leading: CircleAvatar(
+          radius: 18,
+          backgroundColor: const Color(0xFFAB47BC),
+          child: const Icon(CupertinoIcons.folder_fill, color: Colors.white, size: 18),
+        ),
+        title: Text(project["nome"] ?? "Sem nome", style: TextStyle(fontWeight: FontWeight.w600, color: textColor)),
+        subtitle: Text(
+          descricao.isNotEmpty ? "$descricao\nPrazo: $prazo" : "Prazo: $prazo",
+          style: TextStyle(color: subtitleColor),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: () => _showEditProjectDialog(project),
+              child: const Icon(CupertinoIcons.pencil, color: Color(0xFFAB47BC)),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => _deleteProject(project['idProjeto']),
+              child: const Icon(CupertinoIcons.delete, color: CupertinoColors.systemRed),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : projects.isEmpty
-              ? const Center(child: Text("Nenhum projeto cadastrado"))
-              : ListView.builder(
-                  itemCount: projects.length,
-                  itemBuilder: (context, index) => Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: ListTile(
-                      title: Text(projects[index]["nome"] ?? "Sem nome"),
-                      subtitle: Text(projects[index]["descricao"] ?? "Sem descrição"),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () => _showEditProjectDialog(projects[index]),
+    final isDark = TaskNavigationApp.themeNotifier.value == ThemeMode.dark;
+    final backgroundColor = isDark ? CupertinoColors.black : CupertinoColors.systemGroupedBackground;
+
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(
+          "Projetos",
+          style: TextStyle(fontWeight: FontWeight.w600, color: isDark ? CupertinoColors.white : CupertinoColors.black),
+        ),
+        backgroundColor: backgroundColor,
+      ),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Container(
+              color: backgroundColor,
+              child: isLoading
+                  ? const Center(child: CupertinoActivityIndicator())
+                  : ListView(
+                      children: [
+                        const SizedBox(height: 16),
+                        if (projects.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                "Nenhum projeto cadastrado",
+                                style: TextStyle(color: CupertinoColors.systemGrey),
+                              ),
+                            ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.redAccent),
-                            onPressed: () => _deleteProject(projects[index]['idProjeto']),
-                          ),
-                        ],
-                      ),
+                        for (var project in projects) _buildProjectTile(project),
+                        const SizedBox(height: 100),
+                      ],
                     ),
+            ),
+            Positioned(
+              bottom: 30,
+              right: 20,
+              child: GestureDetector(
+                onTap: _showAddProjectDialog,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFAB47BC),
+                    shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: const Color(0xFFAB47BC).withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 3))],
                   ),
+                  child: const Icon(CupertinoIcons.add, color: Colors.white, size: 28),
                 ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddProjectDialog,
-        heroTag: 'projectsFAB',
-        child: const Icon(Icons.add),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -33,100 +34,127 @@ class CollaborationScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final cardColor = isDark ? const Color.fromARGB(255, 27, 27, 27) : const Color.fromARGB(255, 255, 255, 255);
+    // mesmo cinza escuro da tela de configurações
+    final backgroundColor = isDark
+        ? const Color.fromARGB(255, 36, 36, 36)
+        : CupertinoColors.systemGroupedBackground;
+    final navBarColor = isDark
+        ? const Color.fromARGB(255, 36, 36, 36)
+        : CupertinoColors.systemGrey6;
+    final cardColor = isDark
+        ? const Color.fromARGB(255, 27, 27, 27)
+        : CupertinoColors.systemBackground;
     final primaryTextColor = isDark ? Colors.white : Colors.black;
     final secondaryTextColor = isDark ? Colors.white70 : Colors.black87;
     final labelTextColor = isDark ? Colors.white : Colors.black;
 
-    return Scaffold(
-      // ignore: deprecated_member_use
-      backgroundColor: theme.colorScheme.background,
-   
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: departments.length,
-        itemBuilder: (context, index) {
-          final dept = departments[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            elevation: 4,
-            color: cardColor,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    dept['name'] ?? '',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: primaryTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    dept['description'] ?? '',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      color: secondaryTextColor,
-                    ),
-                  ),
-                  const Divider(height: 24, thickness: 1),
-                  Text(
-                    'Chefe do Setor:',
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.w600,
-                      color: labelTextColor,
-                    ),
-                  ),
-                  Text(
-                    dept['chief'] ?? '',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      color: secondaryTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Email:',
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.w600,
-                      color: labelTextColor,
-                    ),
-                  ),
-                  Text(
-                    dept['email'] ?? '',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      color: secondaryTextColor,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Biografia:',
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.w600,
-                      color: labelTextColor,
-                    ),
-                  ),
-                  Text(
-                    dept['bio'] ?? '',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      fontStyle: FontStyle.italic,
-                      color: secondaryTextColor,
-                    ),
+    return CupertinoPageScaffold(
+      backgroundColor: backgroundColor,
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: navBarColor.withOpacity(0.95),
+        border: Border.all(color: Colors.transparent),
+        middle: const Text(
+          'Colaboração',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          itemCount: departments.length,
+          itemBuilder: (context, index) {
+            final dept = departments[index];
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.black.withOpacity(0.3)
+                        : Colors.grey.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
-            ),
-          );
-        },
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dept['name'] ?? '',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: primaryTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      dept['description'] ?? '',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        color: secondaryTextColor,
+                      ),
+                    ),
+                    const Divider(height: 24, thickness: 0.8),
+                    Text(
+                      'Chefe do Setor:',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        color: labelTextColor,
+                      ),
+                    ),
+                    Text(
+                      dept['chief'] ?? '',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        color: secondaryTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Email:',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        color: labelTextColor,
+                      ),
+                    ),
+                    Text(
+                      dept['email'] ?? '',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        color: secondaryTextColor,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Biografia:',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        color: labelTextColor,
+                      ),
+                    ),
+                    Text(
+                      dept['bio'] ?? '',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                        color: secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

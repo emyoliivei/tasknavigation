@@ -1,6 +1,5 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,233 +19,290 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
   String _userName = "";
   File? _profileImage;
+  String? _uploadedImageUrl;
   int? _configId;
 
   final ImagePicker _picker = ImagePicker();
+  final TextEditingController _userNameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _isDarkTheme = TaskNavigationApp.themeNotifier.value == ThemeMode.dark;
     _loadSettings();
   }
 
-  // -------------------- CARREGAR CONFIGURAÇÕES --------------------
+  @override
+  void dispose() {
+    _userNameController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId');
     if (userId == null) return;
 
+    final savedUserName = prefs.getString('userName') ?? '';
     final config = await ApiService.getUserConfig(userId);
-    if (config != null) {
-      setState(() {
+
+    setState(() {
+      if (config != null) {
         _configId = config['id'];
         _isDarkTheme = config['tema'] == 'dark';
         _notificationsEnabled = config['notificacoes'] ?? true;
-        _userName = config['usuario']?['nome'] ?? '';
+
+        _userName = savedUserName.isNotEmpty
+            ? savedUserName
+            : (config['usuario']?['nome'] ?? '');
+        _userNameController.text = _userName;
+
         final fotoPath = config['fotoPerfil'];
         if (fotoPath != null && fotoPath.isNotEmpty) {
-          _profileImage = File(fotoPath);
+          if (fotoPath.startsWith("http")) {
+            _uploadedImageUrl = fotoPath;
+          } else {
+            _profileImage = File(fotoPath);
+          }
         }
+      } else {
+        _isDarkTheme = TaskNavigationApp.themeNotifier.value == ThemeMode.dark;
+        _userNameController.text = savedUserName;
+      }
+
+      TaskNavigationApp.themeNotifier.value =
+          _isDarkTheme ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _profileImage = File(image.path);
+        _uploadedImageUrl = null;
       });
     }
   }
 
-  // -------------------- SALVAR CONFIGURAÇÕES --------------------
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId');
     if (userId == null) return;
 
+    prefs.setString('userName', _userNameController.text);
+
+    String? imageUrl = _uploadedImageUrl;
+    if (_profileImage != null) {
+      imageUrl = _profileImage!.path;
+    }
+
     final config = {
       "id": _configId,
-      "usuario": {"id": userId, "nome": _userName},
+      "usuario": {"id": userId, "nome": _userNameController.text},
       "tema": _isDarkTheme ? "dark" : "light",
       "notificacoes": _notificationsEnabled,
-      "fotoPerfil": _profileImage?.path ?? "",
+      "fotoPerfil": imageUrl ?? "",
     };
 
     try {
       final savedConfig = await ApiService.saveUserConfig(config);
       setState(() {
         _configId = savedConfig['id'];
+        _uploadedImageUrl = imageUrl;
+        _profileImage = null;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Configurações salvas com sucesso!')),
-      );
+      if (mounted) {
+        showCupertinoDialog(
+          context: context,
+          builder: (_) => CupertinoAlertDialog(
+            title: const Text("Sucesso"),
+            content: const Text("Configurações salvas com sucesso!"),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text("OK"),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar configurações: $e')),
-      );
+      if (mounted) {
+        showCupertinoDialog(
+          context: context,
+          builder: (_) => CupertinoAlertDialog(
+            title: const Text("Erro"),
+            content: Text("Erro ao salvar configurações: $e"),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text("OK"),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
-  // -------------------- ESCOLHER FOTO --------------------
-  Future<void> _pickImage() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _profileImage = File(image.path);
-      });
-    }
+  Future<void> _logout() async {
+    await ApiService.logout();
+    Navigator.of(context).pushReplacementNamed('/login');
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF7F7F7);
-    final cardColor = isDark ? const Color(0xFF2A2A2A) : Colors.white;
-    final primaryColor = Colors.deepPurpleAccent;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = _isDarkTheme
+        ? CupertinoColors.black
+        : const Color(0xFFF5F5F5); // cinza clarinho no claro
+    final cardColor = _isDarkTheme ? const Color(0xFF3A3A3A) : CupertinoColors.white;
+    final primaryColor = const Color(0xFFAB47BC);
+    final accentColor = CupertinoColors.systemRed;
+    final textColor = _isDarkTheme ? CupertinoColors.white : CupertinoColors.black;
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text(
+          "Configurações",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: backgroundColor,
+      ),
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // -------------------- FOTO DE PERFIL --------------------
+              // FOTO DE PERFIL
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: primaryColor.withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
+                      color: primaryColor.withOpacity(0.15),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
                 child: CircleAvatar(
-                  radius: 64,
-                  backgroundColor: primaryColor.withOpacity(0.3),
+                  radius: 70,
+                  backgroundColor: _isDarkTheme
+                      ? CupertinoColors.darkBackgroundGray
+                      : CupertinoColors.inactiveGray,
                   backgroundImage: _profileImage != null
                       ? FileImage(_profileImage!) as ImageProvider
-                      : const AssetImage('assets/default_profile.png'),
+                      : (_uploadedImageUrl != null
+                          ? NetworkImage(_uploadedImageUrl!) as ImageProvider
+                          : const AssetImage('assets/default_profile.png')),
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.photo_camera),
-                label: const Text('Trocar Foto'),
-                onPressed: _pickImage,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor.withOpacity(0.1),
-                  foregroundColor: primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  elevation: 0,
-                  textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(height: 36),
 
-              // -------------------- NOME DE USUÁRIO --------------------
+              // BOTÃO TROCAR FOTO - PRETO NO CLARO
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Text(
+                  'Trocar Foto',
+                  style: TextStyle(
+                      color: _isDarkTheme ? CupertinoColors.white : CupertinoColors.black,
+                      fontWeight: FontWeight.w600),
+                ),
+                onPressed: _pickImage,
+              ),
+              const SizedBox(height: 32),
+
+              // NOME DE USUÁRIO
               Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: cardColor,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: const Offset(0, 4),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: CupertinoTextField(
+                  placeholder: 'Nome de Usuário',
+                  controller: _userNameController,
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+                  prefix: Icon(CupertinoIcons.person, color: primaryColor),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // TEMA ESCURO
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Tema Escuro',
+                        style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
+                    CupertinoSwitch(
+                      value: _isDarkTheme,
+                      onChanged: (value) {
+                        setState(() {
+                          _isDarkTheme = value;
+                          TaskNavigationApp.themeNotifier.value =
+                              value ? ThemeMode.dark : ThemeMode.light;
+                        });
+                      },
+                      activeColor: primaryColor,
                     ),
                   ],
                 ),
-                child: TextFormField(
-                  initialValue: _userName,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: 'Nome de Usuário',
-                    labelStyle: TextStyle(color: textColor.withOpacity(0.7)),
-                    prefixIcon: Icon(Icons.person, color: primaryColor),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _userName = value;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 36),
-
-              // -------------------- TEMA ESCURO --------------------
-              Card(
-                color: cardColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 2,
-                child: SwitchListTile(
-                  title: Text(
-                    'Tema Escuro',
-                    style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-                  ),
-                  value: _isDarkTheme,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _isDarkTheme = value;
-                      TaskNavigationApp.themeNotifier.value =
-                          value ? ThemeMode.dark : ThemeMode.light;
-                    });
-                  },
-                  secondary: Icon(Icons.dark_mode, color: primaryColor),
-                  thumbColor: MaterialStateProperty.all(primaryColor),
-                  trackColor: MaterialStateProperty.all(primaryColor.withOpacity(0.3)),
-                ),
               ),
               const SizedBox(height: 16),
 
-              // -------------------- NOTIFICAÇÕES --------------------
-              Card(
-                color: cardColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+              // NOTIFICAÇÕES
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                elevation: 2,
-                child: SwitchListTile(
-                  title: Text(
-                    'Notificações',
-                    style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-                  ),
-                  value: _notificationsEnabled,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _notificationsEnabled = value;
-                    });
-                  },
-                  secondary: Icon(Icons.notifications, color: primaryColor),
-                  thumbColor: MaterialStateProperty.all(primaryColor),
-                  // ignore: deprecated_member_use
-                  trackColor: MaterialStateProperty.all(primaryColor.withOpacity(0.3)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Notificações',
+                        style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
+                    CupertinoSwitch(
+                      value: _notificationsEnabled,
+                      onChanged: (value) => setState(() => _notificationsEnabled = value),
+                      activeColor: primaryColor,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
-              // -------------------- BOTÃO SALVAR --------------------
-              ElevatedButton.icon(
-                icon: const Icon(Icons.save),
-                label: const Text('Salvar Configurações'),
-                onPressed: _saveSettings,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+              // BOTÕES SALVAR E LOGOUT
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CupertinoButton.filled(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(CupertinoIcons.check_mark_circled_solid, size: 20),
+                        SizedBox(width: 6),
+                        Text("Salvar Alterações"),
+                      ],
+                    ),
+                    onPressed: _saveSettings,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                  CupertinoButton(
+                    color: accentColor,
+                    child: const Text(
+                      "Logout",
+                      style: TextStyle(color: CupertinoColors.white),
+                    ),
+                    onPressed: _logout,
+                  ),
+                ],
               ),
             ],
           ),

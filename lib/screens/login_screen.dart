@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
@@ -83,21 +84,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF8E24AA);
+    const primaryColor = Color(0xFF7B1FA2); // Roxo um pouco mais suave
 
-    return Scaffold(
-      body: Stack(
+    return CupertinoPageScaffold(
+      child: Stack(
         children: [
-          // 🔹 Mesmo gradiente da tela Criar Conta
+          // 🔹 Gradiente suave
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF6A1B9A), // Roxo escuro
-                  Color(0xFF8E24AA), // Roxo médio
-                  Color(0xFFBA68C8), // Roxo claro
+                  Color(0xFF7B1FA2),
+                  Color(0xFF9C27B0),
+                  Color(0xFFBA68C8),
                 ],
               ),
             ),
@@ -108,14 +109,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: Container(
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(28),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95), // card branco translúcido
-                    borderRadius: BorderRadius.circular(24),
+                    color: CupertinoColors.systemBackground.withOpacity(0.95),
+                    borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 20,
+                        color: Colors.black.withOpacity(0.12),
+                        blurRadius: 18,
                         offset: const Offset(0, 8),
                       ),
                     ],
@@ -125,35 +126,46 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.lock_outline, size: 60, color: primaryColor),
-                        const SizedBox(height: 20),
+                        Icon(CupertinoIcons.lock, size: 60, color: primaryColor),
+                        const SizedBox(height: 18),
                         Text(
                           'Login',
                           style: GoogleFonts.montserrat(
-                            fontSize: 26,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: primaryColor,
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 28),
 
                         // Email
-                        TextFormField(
+                        CupertinoTextFormFieldRow(
                           controller: _emailController,
-                          decoration: _buildInputDecoration('Email', Icons.email_outlined)
-                              .copyWith(hintText: 'Digite seu email'),
+                          placeholder: 'Digite seu email',
+                          prefix: const Icon(CupertinoIcons.mail, color: Color(0xFF7B1FA2)),
                           validator: (value) =>
                               value == null || !value.contains('@') ? 'Email inválido' : null,
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.secondarySystemBackground,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
                         ),
                         const SizedBox(height: 16),
 
                         // Senha
-                        TextFormField(
+                        CupertinoTextFormFieldRow(
                           controller: _senhaController,
+                          placeholder: 'Senha',
                           obscureText: true,
-                          decoration: _buildInputDecoration('Senha', Icons.lock_outline),
+                          prefix: const Icon(CupertinoIcons.lock, color: Color(0xFF7B1FA2)),
                           validator: (value) =>
                               value == null || value.length < 4 ? 'Senha muito curta' : null,
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.secondarySystemBackground,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
                         ),
                         const SizedBox(height: 20),
 
@@ -162,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             padding: const EdgeInsets.only(bottom: 12),
                             child: Text(
                               _erro!,
-                              style: const TextStyle(color: Colors.red),
+                              style: const TextStyle(color: CupertinoColors.systemRed),
                             ),
                           ),
 
@@ -170,20 +182,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           width: double.infinity,
                           height: 50,
                           child: _loading
-                              ? const Center(child: CircularProgressIndicator())
-                              : ElevatedButton(
+                              ? const Center(child: CupertinoActivityIndicator())
+                              : CupertinoButton.filled(
+                                  borderRadius: BorderRadius.circular(22),
+                                  color: primaryColor,
                                   onPressed: _login,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: primaryColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
                                   child: Text(
                                     'Entrar',
                                     style: GoogleFonts.montserrat(
                                       fontSize: 18,
-                                      color: Colors.white,
+                                      color: CupertinoColors.white,
                                     ),
                                   ),
                                 ),
@@ -191,7 +199,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                         const SizedBox(height: 16),
 
-                        TextButton(
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
                           onPressed: () => Navigator.pushReplacementNamed(context, '/criarConta'),
                           child: Text(
                             'Criar conta',
@@ -202,7 +211,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                         ),
 
-                        TextButton(
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
                           onPressed: () => Navigator.pushNamed(context, '/esqueciSenha'),
                           child: Text(
                             'Esqueci minha senha',
@@ -220,20 +230,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  InputDecoration _buildInputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: const Color(0xFF8E24AA)),
-      filled: true,
-      fillColor: Colors.deepPurple.shade50,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFF8E24AA), width: 2),
       ),
     );
   }

@@ -1,4 +1,5 @@
-// tasks_screen.dart
+// tasks_screen.dart (modo iOS com botão add Cupertino)
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
@@ -26,11 +27,8 @@ class _TasksScreenState extends State<TasksScreen> {
     _loadProjects();
   }
 
-  // 🔹 CARREGAR TAREFAS
   Future<void> _loadTasks() async {
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
     try {
       final data = await ApiService.getData("/tarefas");
       setState(() {
@@ -39,13 +37,10 @@ class _TasksScreenState extends State<TasksScreen> {
     } catch (e) {
       debugPrint("Erro ao carregar tarefas: $e");
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
-  // 🔹 CARREGAR PROJETOS
   Future<void> _loadProjects() async {
     try {
       final data = await ApiService.getData("/projetos");
@@ -58,14 +53,13 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  // 🔹 ADICIONAR TAREFA
   Future<void> _addTask() async {
     if (_tituloController.text.isEmpty || _selectedProject == null) return;
 
     final newTask = {
       "titulo": _tituloController.text,
       "descricao": _descricaoController.text,
-      "idProjeto": _selectedProject!["idProjeto"], // só o ID
+      "idProjeto": _selectedProject!["idProjeto"],
       "status": "Pendente",
       "prioridade": "Média",
     };
@@ -80,14 +74,13 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  // 🔹 ATUALIZAR TAREFA
   Future<void> _updateTask(int id, Map<String, dynamic> updatedTask) async {
     final taskToSend = {
       "titulo": updatedTask["titulo"],
       "descricao": updatedTask["descricao"],
       "status": updatedTask["status"] ?? "Pendente",
       "prioridade": updatedTask["prioridade"] ?? "Média",
-      "idProjeto": updatedTask["idProjeto"], // só o ID
+      "idProjeto": updatedTask["idProjeto"],
     };
 
     try {
@@ -98,7 +91,6 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  // 🔹 DELETAR TAREFA
   Future<void> _deleteTask(int id) async {
     try {
       await ApiService.deleteData("/tarefas/$id");
@@ -108,51 +100,52 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  // 🔹 DIALOGS
   void _showAddTaskDialog() {
     _tituloController.clear();
     _descricaoController.clear();
     _selectedProject = projects.isNotEmpty ? projects[0] : null;
 
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: const Text("Nova Tarefa"),
         content: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            const SizedBox(height: 10),
+            CupertinoTextField(
               controller: _tituloController,
-              decoration: const InputDecoration(labelText: "Título da tarefa"),
-            ),
-            TextField(
-              controller: _descricaoController,
-              decoration: const InputDecoration(labelText: "Descrição"),
+              placeholder: "Título da tarefa",
             ),
             const SizedBox(height: 10),
-            DropdownButton<Map<String, dynamic>>(
-              isExpanded: true,
-              value: _selectedProject,
-              items: projects
-                  .map((proj) => DropdownMenuItem(
-                        value: proj,
-                        child: Text(proj["nome"] ?? "Projeto sem nome"),
-                      ))
-                  .toList(),
-              onChanged: (proj) {
-                setState(() => _selectedProject = proj);
+            CupertinoTextField(
+              controller: _descricaoController,
+              placeholder: "Descrição",
+            ),
+            const SizedBox(height: 10),
+            CupertinoPicker(
+              itemExtent: 32.0,
+              onSelectedItemChanged: (index) {
+                setState(() => _selectedProject = projects[index]);
               },
+              children: projects
+                  .map((proj) =>
+                      Text(proj["nome"] ?? "Projeto sem nome"))
+                  .toList(),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
-          ElevatedButton(
+          CupertinoDialogAction(
+            child: const Text("Cancelar"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text("Adicionar"),
             onPressed: () {
               _addTask();
               Navigator.pop(context);
             },
-            child: const Text("Adicionar"),
           ),
         ],
       ),
@@ -165,98 +158,177 @@ class _TasksScreenState extends State<TasksScreen> {
 
     _selectedProject = projects.isNotEmpty
         ? projects.firstWhere(
-            (proj) => proj["idProjeto"] == task["projeto"]?["idProjeto"],
+            (proj) =>
+                proj["idProjeto"] == task["projeto"]?["idProjeto"],
             orElse: () => projects[0],
           )
         : null;
 
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: const Text("Editar Tarefa"),
         content: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            const SizedBox(height: 10),
+            CupertinoTextField(
               controller: _tituloController,
-              decoration: const InputDecoration(labelText: "Título da tarefa"),
-            ),
-            TextField(
-              controller: _descricaoController,
-              decoration: const InputDecoration(labelText: "Descrição"),
+              placeholder: "Título da tarefa",
             ),
             const SizedBox(height: 10),
-            DropdownButton<Map<String, dynamic>>(
-              isExpanded: true,
-              value: _selectedProject,
-              items: projects
-                  .map((proj) => DropdownMenuItem(
-                        value: proj,
-                        child: Text(proj["nome"] ?? "Projeto sem nome"),
-                      ))
-                  .toList(),
-              onChanged: (proj) {
-                setState(() => _selectedProject = proj);
+            CupertinoTextField(
+              controller: _descricaoController,
+              placeholder: "Descrição",
+            ),
+            const SizedBox(height: 10),
+            CupertinoPicker(
+              itemExtent: 32.0,
+              onSelectedItemChanged: (index) {
+                setState(() => _selectedProject = projects[index]);
               },
+              children: projects
+                  .map((proj) =>
+                      Text(proj["nome"] ?? "Projeto sem nome"))
+                  .toList(),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
-          ElevatedButton(
+          CupertinoDialogAction(
+            child: const Text("Cancelar"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text("Salvar"),
             onPressed: () {
               final updatedTask = {
                 "titulo": _tituloController.text,
                 "descricao": _descricaoController.text,
-                "idProjeto": _selectedProject?["idProjeto"], // só o ID
+                "idProjeto": _selectedProject?["idProjeto"],
                 "status": task["status"] ?? "Pendente",
                 "prioridade": task["prioridade"] ?? "Média",
               };
               _updateTask(task["idTarefa"], updatedTask);
               Navigator.pop(context);
             },
-            child: const Text("Salvar"),
           ),
         ],
       ),
     );
   }
 
-  // 🔹 BUILD
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : tasks.isEmpty
-              ? const Center(child: Text("Nenhuma tarefa cadastrada"))
-              : ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) => Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: ListTile(
-                      title: Text(tasks[index]["titulo"] ?? "Sem título"),
-                      subtitle: Text(tasks[index]["descricao"] ?? "Sem descrição"),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () => _showEditTaskDialog(tasks[index]),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final backgroundColor = isDark
+        ? const Color.fromARGB(255, 36, 36, 36)
+        : Colors.white;
+
+    final cardColor = isDark
+        ? const Color.fromARGB(255, 27, 27, 27)
+        : CupertinoColors.systemBackground;
+
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return CupertinoPageScaffold(
+      backgroundColor: backgroundColor,
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text(
+          'Tarefas',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            isLoading
+                ? const Center(child: CupertinoActivityIndicator())
+                : tasks.isEmpty
+                    ? Center(
+                        child: Text(
+                          "Nenhuma tarefa cadastrada",
+                          style: GoogleFonts.montserrat(
+                            color: textColor.withOpacity(0.7),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.redAccent),
-                            onPressed: () => _deleteTask(tasks[index]['idTarefa']),
-                          ),
-                        ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        itemCount: tasks.length,
+                        itemBuilder: (context, index) {
+                          final task = tasks[index];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: isDark
+                                      ? Colors.black.withOpacity(0.3)
+                                      : Colors.grey.withOpacity(0.2),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              title: Text(
+                                task["titulo"] ?? "Sem título",
+                                style: GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                              subtitle: Text(
+                                task["descricao"] ?? "Sem descrição",
+                                style: GoogleFonts.montserrat(
+                                  color: textColor.withOpacity(0.8),
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CupertinoButton(
+                                    padding: EdgeInsets.zero,
+                                    child: const Icon(
+                                      CupertinoIcons.pencil,
+                                      color: CupertinoColors.activeBlue,
+                                    ),
+                                    onPressed: () =>
+                                        _showEditTaskDialog(tasks[index]),
+                                  ),
+                                  CupertinoButton(
+                                    padding: EdgeInsets.zero,
+                                    child: const Icon(
+                                      CupertinoIcons.delete,
+                                      color: CupertinoColors.destructiveRed,
+                                    ),
+                                    onPressed: () =>
+                                        _deleteTask(tasks[index]['idTarefa']),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  ),
-                ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddTaskDialog,
-        heroTag: 'tasksFAB',
-        child: const Icon(Icons.add),
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: CupertinoButton.filled(
+                padding: const EdgeInsets.all(16),
+                borderRadius: BorderRadius.circular(30),
+                child: const Icon(CupertinoIcons.add),
+                onPressed: _showAddTaskDialog,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

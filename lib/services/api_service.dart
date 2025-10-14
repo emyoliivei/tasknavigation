@@ -7,9 +7,9 @@ class ApiService {
   // Base URL: muda conforme se é web (localhost) ou mobile (IP da máquina)
  static String get baseUrl {
   // Para Web
-  if (kIsWeb) return 'http://172.19.0.91:8080';
+  if (kIsWeb) return 'http://172.19.1.66:8080';
   // Para Mobile
-  return 'http://172.19.0.91:8080';
+  return 'http://172.19.1.66:8080';
 }
 
 
@@ -258,5 +258,6 @@ static Future<dynamic> postData(
       throw Exception('Falha ao salvar configuração: $e');
     }
   }
+  
 
 }

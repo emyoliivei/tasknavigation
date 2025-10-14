@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
@@ -21,16 +22,26 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_senhaController.text != _confirmSenhaController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('As senhas não conferem')),
+      showCupertinoDialog(
+        context: context,
+        builder: (_) => CupertinoAlertDialog(
+          title: const Text('Erro'),
+          content: const Text('As senhas não conferem'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        ),
       );
       return;
     }
 
-    showDialog(
+    showCupertinoDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: CupertinoActivityIndicator()),
     );
 
     final res = await ApiService.register(
@@ -42,14 +53,36 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
     Navigator.pop(context);
 
     if (res is Map && res.containsKey('error')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['error'])),
+      showCupertinoDialog(
+        context: context,
+        builder: (_) => CupertinoAlertDialog(
+          title: const Text('Erro'),
+          content: Text(res['error']),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Conta criada com sucesso!')),
+      showCupertinoDialog(
+        context: context,
+        builder: (_) => CupertinoAlertDialog(
+          title: const Text('Sucesso'),
+          content: const Text('Conta criada com sucesso!'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            )
+          ],
+        ),
       );
-      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
@@ -57,16 +90,16 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFF8E24AA);
 
-    return Scaffold(
-      body: Container(
+    return CupertinoPageScaffold(
+      child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter, // gradiente de cima para baixo
+            begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF6A1B9A), // Roxo mais escuro
-              Color(0xFF8E24AA), // Roxo principal
-              Color(0xFFBA68C8), // Roxo mais claro
+              Color(0xFF6A1B9A),
+              Color(0xFF8E24AA),
+              Color(0xFFBA68C8),
             ],
           ),
         ),
@@ -74,9 +107,9 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: Container(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95), // card branco translúcido
+                color: CupertinoColors.systemBackground.withOpacity(0.95),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
@@ -91,7 +124,7 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.person_add_alt_1, size: 60, color: primaryColor),
+                    Icon(CupertinoIcons.person_add, size: 60, color: primaryColor),
                     const SizedBox(height: 20),
                     Text(
                       'Criar Conta',
@@ -102,80 +135,112 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    TextFormField(
+
+                    // Nome
+                    CupertinoTextFormFieldRow(
                       controller: _nomeController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nome',
-                        prefixIcon: Icon(Icons.person),
-                      ),
+                      placeholder: 'Nome',
+                      prefix: const Icon(CupertinoIcons.person),
                       validator: (value) =>
                           value == null || value.isEmpty ? 'Informe seu nome' : null,
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.secondarySystemBackground,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+
+                    // Email
+                    CupertinoTextFormFieldRow(
                       controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
+                      placeholder: 'Email',
+                      prefix: const Icon(CupertinoIcons.mail),
                       validator: (value) =>
                           value == null || !value.contains('@') ? 'Email inválido' : null,
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.secondarySystemBackground,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+
+                    // Usuário
+                    CupertinoTextFormFieldRow(
                       controller: _usuarioController,
-                      decoration: const InputDecoration(
-                        labelText: 'Usuário',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
+                      placeholder: 'Usuário',
+                      prefix: const Icon(CupertinoIcons.person_crop_circle),
                       validator: (value) =>
                           value == null || value.isEmpty ? 'Informe o usuário' : null,
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.secondarySystemBackground,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+
+                    // Senha
+                    CupertinoTextFormFieldRow(
                       controller: _senhaController,
+                      placeholder: 'Senha',
                       obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Senha',
-                        prefixIcon: Icon(Icons.lock_outline),
-                      ),
+                      prefix: const Icon(CupertinoIcons.lock),
                       validator: (value) =>
                           value == null || value.length < 4 ? 'Senha muito curta' : null,
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.secondarySystemBackground,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+
+                    // Confirmar senha
+                    CupertinoTextFormFieldRow(
                       controller: _confirmSenhaController,
+                      placeholder: 'Confirmar Senha',
                       obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Confirmar Senha',
-                        prefixIcon: Icon(Icons.lock_outline),
-                      ),
+                      prefix: const Icon(CupertinoIcons.lock),
                       validator: (value) =>
                           value == null || value.length < 4 ? 'Senha muito curta' : null,
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.secondarySystemBackground,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      textInputAction: TextInputAction.done,
                     ),
                     const SizedBox(height: 28),
+
+                    // Botão Cadastrar
                     SizedBox(
                       width: double.infinity,
                       height: 50,
-                      child: ElevatedButton(
+                      child: CupertinoButton.filled(
+                        borderRadius: BorderRadius.circular(20),
+                        color: primaryColor,
                         onPressed: _criarConta,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
                         child: Text(
                           'Cadastrar',
                           style: GoogleFonts.montserrat(
                             fontSize: 18,
-                            color: Colors.white,
+                            color: CupertinoColors.white,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    TextButton(
+
+                    // Voltar ao login
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
                       onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
                       child: Text(
                         'Voltar ao Login',

@@ -58,21 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(_titles[_selectedIndex]),
-          centerTitle: true,
-          leading: _navigationStack.length > 1
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    setState(() {
-                      _navigationStack.removeLast();
-                      _selectedIndex = _navigationStack.last;
-                    });
-                  },
-                )
-              : null,
-        ),
+       
         body: IndexedStack(
           index: _selectedIndex,
           children: _pages,
