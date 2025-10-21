@@ -258,6 +258,29 @@ static Future<dynamic> postData(
       throw Exception('Falha ao salvar configuração: $e');
     }
   }
-  
+  // 🔹 SOLICITAR RECUPERAÇÃO DE SENHA
+static Future<Map<String, dynamic>> solicitarRecuperacao(String email) async {
+  final url = Uri.parse('$baseUrl/usuarios/redefinir-senha');
+  try {
+    final response = await http.post(
+      url,
+      headers: await _getHeaders(withAuth: false),
+      body: jsonEncode({'email': email}),
+    );
+
+    print("🔹 SOLICITAR RECUPERAÇÃO response: ${response.statusCode} ${response.body}");
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      // Retorna o corpo da resposta decodificado
+      return jsonDecode(response.body);
+    } else {
+      // Retorna erro legível
+      return {'error': 'Erro ${response.statusCode}: ${response.body}'};
+    }
+  } catch (e) {
+    return {'error': 'Falha de conexão: $e'};
+  }
+}
+
 
 }

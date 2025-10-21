@@ -14,7 +14,6 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _usuarioController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmSenhaController = TextEditingController();
 
@@ -31,7 +30,7 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
             CupertinoDialogAction(
               child: const Text('OK'),
               onPressed: () => Navigator.pop(context),
-            )
+            ),
           ],
         ),
       );
@@ -62,7 +61,7 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
             CupertinoDialogAction(
               child: const Text('OK'),
               onPressed: () => Navigator.pop(context),
-            )
+            ),
           ],
         ),
       );
@@ -79,7 +78,7 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                 Navigator.pop(context);
                 Navigator.pushReplacementNamed(context, '/login');
               },
-            )
+            ),
           ],
         ),
       );
@@ -143,12 +142,15 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                       prefix: const Icon(CupertinoIcons.person),
                       validator: (value) =>
                           value == null || value.isEmpty ? 'Informe seu nome' : null,
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                       decoration: BoxDecoration(
                         color: CupertinoColors.secondarySystemBackground,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       textInputAction: TextInputAction.next,
+                      cursorColor: primaryColor,
+                      keyboardAppearance: Brightness.light,
                     ),
                     const SizedBox(height: 16),
 
@@ -158,30 +160,19 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                       placeholder: 'Email',
                       prefix: const Icon(CupertinoIcons.mail),
                       validator: (value) =>
-                          value == null || !value.contains('@') ? 'Email inválido' : null,
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                          value == null || !value.contains('@')
+                              ? 'Email inválido'
+                              : null,
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                       decoration: BoxDecoration(
                         color: CupertinoColors.secondarySystemBackground,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Usuário
-                    CupertinoTextFormFieldRow(
-                      controller: _usuarioController,
-                      placeholder: 'Usuário',
-                      prefix: const Icon(CupertinoIcons.person_crop_circle),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Informe o usuário' : null,
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.secondarySystemBackground,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      textInputAction: TextInputAction.next,
+                      cursorColor: primaryColor,
+                      keyboardAppearance: Brightness.light,
                     ),
                     const SizedBox(height: 16),
 
@@ -192,13 +183,18 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                       obscureText: true,
                       prefix: const Icon(CupertinoIcons.lock),
                       validator: (value) =>
-                          value == null || value.length < 4 ? 'Senha muito curta' : null,
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                          value == null || value.length < 4
+                              ? 'Senha muito curta'
+                              : null,
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                       decoration: BoxDecoration(
                         color: CupertinoColors.secondarySystemBackground,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       textInputAction: TextInputAction.next,
+                      cursorColor: primaryColor,
+                      keyboardAppearance: Brightness.light,
                     ),
                     const SizedBox(height: 16),
 
@@ -209,13 +205,18 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                       obscureText: true,
                       prefix: const Icon(CupertinoIcons.lock),
                       validator: (value) =>
-                          value == null || value.length < 4 ? 'Senha muito curta' : null,
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                          value == null || value.length < 4
+                              ? 'Senha muito curta'
+                              : null,
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                       decoration: BoxDecoration(
                         color: CupertinoColors.secondarySystemBackground,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       textInputAction: TextInputAction.done,
+                      cursorColor: primaryColor,
+                      keyboardAppearance: Brightness.light,
                     ),
                     const SizedBox(height: 28),
 
@@ -241,7 +242,8 @@ class _CriarContaScreenState extends State<CriarContaScreen> {
                     // Voltar ao login
                     CupertinoButton(
                       padding: EdgeInsets.zero,
-                      onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                      onPressed: () =>
+                          Navigator.pushReplacementNamed(context, '/login'),
                       child: Text(
                         'Voltar ao Login',
                         style: GoogleFonts.montserrat(
