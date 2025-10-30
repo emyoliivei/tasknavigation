@@ -7,11 +7,10 @@ class ApiService {
   // Base URL: muda conforme se é web (localhost) ou mobile (IP da máquina)
  static String get baseUrl {
   // Para Web
-  if (kIsWeb) return 'http://172.19.1.66:8080';
-  // Para Mobile
-  return 'http://172.19.1.66:8080';
-}
-
+    return 'http://127.0.0.1:8080'; 
+      // ou 'http://localhost:8080' se estiver acessando direto no PC
+      // ou 'http://172.19.0.109:8080' se estiver acessando de outro dispositivo na rede
+    }
 
   // 🔹 Cabeçalhos HTTP
   // Se 'withAuth' for true, adiciona token JWT no header Authorization
